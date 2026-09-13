@@ -1323,6 +1323,9 @@ components:
           type: object
         payment_method_types:
           items:
+            enum:
+            - card
+            - pix
             type: string
           type: array
         success_url:
@@ -2435,6 +2438,15 @@ components:
       properties:
         payment_method_data:
           $ref: '#/components/schemas/PaymentIntentPaymentMethodData'
+        payment_method_types:
+          description: 'Payment method vocabulary honored at launch: `card` (default) or `pix` (BRL, automatic
+            capture).'
+          items:
+            enum:
+            - card
+            - pix
+            type: string
+          type: array
         receipt_email:
           type: string
         return_url:
@@ -2473,6 +2485,15 @@ components:
           - $ref: '#/components/schemas/PaymentIntentPaymentMethodData'
           description: Inline card data is accepted on create only when confirm=true. Test-mode cards
             only until the production tokenization boundary is promoted.
+        payment_method_types:
+          description: 'Payment method vocabulary honored at launch: `card` (default) or `pix` (BRL, automatic
+            capture).'
+          items:
+            enum:
+            - card
+            - pix
+            type: string
+          type: array
         receipt_email:
           type: string
         return_url:
@@ -2552,16 +2573,18 @@ components:
       type: object
     PaymentIntentPaymentMethodData:
       additionalProperties: false
+      description: '`type=card` carries inline test-mode card data; `type=pix` carries no data (the Pix
+        instruction is issued server-side and read back through `next_action`).'
       properties:
         card:
           $ref: '#/components/schemas/PaymentIntentCardData'
         type:
           enum:
           - card
+          - pix
           type: string
       required:
       - type
-      - card
       type: object
     PaymentIntentRedirectToUrl:
       additionalProperties: false
@@ -4547,6 +4570,39 @@ components:
     payment_intent:
       type: object
     payment_intent_next_action:
+      description: 'Closed public union: exactly one `type` discriminator plus its matching branch. `pix_display_qr_code`
+        carries only the EMV copy-and-paste payload, an optional PNG data URL and the provider expiry;
+        never a provider URL, txid or connector QR metadata.'
+      maxProperties: 2
+      minProperties: 2
+      properties:
+        pix_display_qr_code:
+          additionalProperties: false
+          properties:
+            data:
+              description: EMV copy-and-paste payload exactly as issued.
+              minLength: 1
+              type: string
+            expires_at:
+              description: Provider expiry, Unix seconds.
+              format: unix-time
+              type: integer
+            image_url_png:
+              description: PNG rendering of `data` as a data URL, or null.
+              nullable: true
+              pattern: ^data:image/png;base64,
+              type: string
+          required:
+          - data
+          - expires_at
+          type: object
+        redirect_to_url:
+          type: object
+        type:
+          enum:
+          - pix_display_qr_code
+          - redirect_to_url
+          type: string
       type: object
     payment_intent_payment_method_options:
       type: object
@@ -4679,6 +4735,28 @@ components:
     payment_method_customer_balance:
       type: object
     payment_method_details:
+      description: 'Closed public union keyed by `type`: `card` carries the safe card summary; `pix` is
+        an empty object (no txid, end-to-end id, payer document or provider echo).'
+      maxProperties: 2
+      minProperties: 2
+      properties:
+        card:
+          description: Safe card summary; see ChargeCardPaymentMethodDetails for the nullable sub-fields.
+          required:
+          - brand
+          - exp_month
+          - exp_year
+          - last4
+          type: object
+        pix:
+          additionalProperties: false
+          properties: {}
+          type: object
+        type:
+          enum:
+          - card
+          - pix
+          type: string
       type: object
     payment_method_eps:
       type: object

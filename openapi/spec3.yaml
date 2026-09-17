@@ -4012,6 +4012,8 @@ components:
         return_url:
           type: string
         setup_future_usage:
+          description: Only `off_session` is accepted on this surface; `on_session` returns a named 400
+            on `setup_future_usage`.
           enum:
           - off_session
           - on_session
@@ -4033,6 +4035,11 @@ components:
           type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
+        payment_method:
+          description: Owned saved PaymentMethod; requires `customer` and `confirm=true`; create only.
+            The succeeded SetupIntent returns the same `pm_*` in `payment_method`.
+          pattern: ^pm_.+
+          type: string
         payment_method_data:
           $ref: '#/components/schemas/SetupIntentPaymentMethodData'
         receipt_email:
@@ -4040,6 +4047,10 @@ components:
         return_url:
           type: string
         setup_future_usage:
+          default: off_session
+          description: Defaults to `off_session` (Stripe default) when omitted and is the only supported
+            value; `on_session` is rejected with a named 400 on create, update and confirm. The terminal
+            event is always `setup_intent.succeeded`.
           enum:
           - off_session
           - on_session
@@ -4074,6 +4085,29 @@ components:
       - param
       - payment_method
       - type
+      type: object
+    SetupIntentList:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/SetupIntent'
+          type: array
+        has_more:
+          type: boolean
+        object:
+          description: 'Fluveo narrowing annotation: truthful single-value list object constant.'
+          enum:
+          - list
+          type: string
+        url:
+          maxLength: 5000
+          pattern: ^/v1/setup_intents
+          type: string
+      required:
+      - data
+      - has_more
+      - object
+      - url
       type: object
     SetupIntentPaymentMethod:
       additionalProperties: false
@@ -4141,6 +4175,8 @@ components:
         return_url:
           type: string
         setup_future_usage:
+          description: Only `off_session` is accepted on this surface; `on_session` returns a named 400
+            on `setup_future_usage`.
           enum:
           - off_session
           - on_session
@@ -6517,6 +6553,12 @@ paths:
       - $ref: '#/components/parameters/ending_before'
       - $ref: '#/components/parameters/customer'
       responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetupIntentList'
+          description: Stripe-compatible SetupIntent list response
         '400':
           content:
             application/json:

@@ -1503,6 +1503,23 @@ components:
         required:
           type: boolean
       type: object
+    CustomUnitAmount:
+      additionalProperties: true
+      properties:
+        maximum:
+          nullable: true
+          type: integer
+        minimum:
+          nullable: true
+          type: integer
+        preset:
+          nullable: true
+          type: integer
+      required:
+      - maximum
+      - minimum
+      - preset
+      type: object
     Customer:
       properties:
         address:
@@ -1757,6 +1774,25 @@ components:
         object:
           enum:
           - customer
+          type: string
+      required:
+      - deleted
+      - id
+      - object
+      type: object
+    DeletedProduct:
+      additionalProperties: false
+      properties:
+        deleted:
+          enum:
+          - true
+          type: boolean
+        id:
+          maxLength: 5000
+          type: string
+        object:
+          enum:
+          - product
           type: string
       required:
       - deleted
@@ -2090,6 +2126,23 @@ components:
       type: object
       x-fluveo-key-max-length: 40
       x-fluveo-reserved-key-policy: case_insensitive_fluveo_prefix
+    PackageDimensions:
+      additionalProperties: true
+      properties:
+        height:
+          type: number
+        length:
+          type: number
+        weight:
+          type: number
+        width:
+          type: number
+      required:
+      - height
+      - length
+      - weight
+      - width
+      type: object
     PaymentIntent:
       properties:
         amount:
@@ -3599,17 +3652,47 @@ components:
       properties:
         active:
           type: boolean
+        billing_scheme:
+          enum:
+          - per_unit
+          - tiered
+          type: string
+        created:
+          format: unix-time
+          type: integer
         currency:
           pattern: ^[a-z]{3}$
           type: string
+        custom_unit_amount:
+          anyOf:
+          - $ref: '#/components/schemas/CustomUnitAmount'
+          nullable: true
         id:
+          description: 'Fluveo narrowing: not in upstream pin; truthful public id-prefix constraint'
+          maxLength: 5000
           pattern: ^price_
+          type: string
+        livemode:
+          type: boolean
+        lookup_key:
+          maxLength: 5000
+          nullable: true
+          type: string
+        metadata:
+          additionalProperties:
+            maxLength: 500
+            type: string
+          type: object
+        nickname:
+          maxLength: 5000
+          nullable: true
           type: string
         object:
           enum:
           - price
           type: string
         product:
+          maxLength: 5000
           type: string
         recurring:
           additionalProperties: false
@@ -3624,16 +3707,43 @@ components:
             interval_count:
               type: integer
           type: object
+        tax_behavior:
+          enum:
+          - exclusive
+          - inclusive
+          - unspecified
+          nullable: true
+          type: string
+        tiers_mode:
+          enum:
+          - graduated
+          - volume
+          nullable: true
+          type: string
+        transform_quantity:
+          anyOf:
+          - $ref: '#/components/schemas/TransformQuantity'
+          nullable: true
+        type:
+          enum:
+          - one_time
+          - recurring
+          type: string
         unit_amount:
           description: Per-unit price in the smallest currency unit.
           type: integer
+        unit_amount_decimal:
+          format: decimal
+          nullable: true
+          type: string
       required:
       - id
       - object
-      - product
-      - currency
-      - unit_amount
       - active
+      - currency
+      - product
+      - unit_amount
+      - recurring
       type: object
     PriceCreate:
       additionalProperties: false
@@ -3689,21 +3799,103 @@ components:
       - has_more
       - url
       type: object
+    PriceUpdate:
+      additionalProperties: false
+      description: Update a price. Amount, currency and product are immutable, as they are in Stripe.
+        Sent as application/x-www-form-urlencoded.
+      properties:
+        active:
+          type: boolean
+        lookup_key:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+        nickname:
+          type: string
+        tax_behavior:
+          enum:
+          - inclusive
+          - exclusive
+          - unspecified
+          type: string
+        transfer_lookup_key:
+          description: Move the lookup key from the price that currently holds it.
+          type: boolean
+      type: object
     Product:
       additionalProperties: true
       properties:
         active:
           type: boolean
+        created:
+          format: unix-time
+          type: integer
+        default_price:
+          maxLength: 5000
+          nullable: true
+          type: string
         description:
           type: string
         id:
+          description: 'Fluveo narrowing: not in upstream pin; truthful public id-prefix constraint'
+          maxLength: 5000
           pattern: ^prod_
           type: string
+        images:
+          items:
+            maxLength: 5000
+            type: string
+          type: array
+        livemode:
+          type: boolean
+        marketing_features:
+          items:
+            $ref: '#/components/schemas/ProductMarketingFeature'
+          type: array
+        metadata:
+          additionalProperties:
+            maxLength: 500
+            type: string
+          type: object
         name:
+          maxLength: 5000
           type: string
         object:
           enum:
           - product
+          type: string
+        package_dimensions:
+          anyOf:
+          - $ref: '#/components/schemas/PackageDimensions'
+          nullable: true
+        shippable:
+          nullable: true
+          type: boolean
+        statement_descriptor:
+          maxLength: 5000
+          nullable: true
+          type: string
+        tax_code:
+          anyOf:
+          - $ref: '#/components/schemas/TaxCode'
+          - maxLength: 5000
+            type: string
+          nullable: true
+        type:
+          enum:
+          - good
+          - service
+          type: string
+        unit_label:
+          maxLength: 5000
+          nullable: true
+          type: string
+        updated:
+          format: unix-time
+          type: integer
+        url:
+          maxLength: 2048
+          nullable: true
           type: string
       required:
       - id
@@ -3744,6 +3936,61 @@ components:
       - data
       - has_more
       - url
+      type: object
+    ProductMarketingFeature:
+      additionalProperties: true
+      properties:
+        name:
+          maxLength: 5000
+          type: string
+      type: object
+    ProductUpdate:
+      additionalProperties: false
+      description: Update a product. Every field is optional; an explicitly empty value clears a nullable
+        field. Sent as application/x-www-form-urlencoded.
+      properties:
+        active:
+          type: boolean
+        default_price:
+          description: An existing, active price of this product.
+          type: string
+        description:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+        name:
+          type: string
+      type: object
+    Recurring:
+      additionalProperties: true
+      properties:
+        interval:
+          enum:
+          - day
+          - week
+          - month
+          - year
+          type: string
+        interval_count:
+          type: integer
+        meter:
+          maxLength: 5000
+          nullable: true
+          type: string
+        trial_period_days:
+          nullable: true
+          type: integer
+        usage_type:
+          enum:
+          - licensed
+          - metered
+          type: string
+      required:
+      - interval
+      - interval_count
+      - meter
+      - trial_period_days
+      - usage_type
       type: object
     Refund:
       properties:
@@ -4376,6 +4623,42 @@ components:
       - data
       - has_more
       - url
+      type: object
+    TaxCode:
+      additionalProperties: true
+      properties:
+        description:
+          maxLength: 5000
+          type: string
+        id:
+          maxLength: 5000
+          type: string
+        name:
+          maxLength: 5000
+          type: string
+        object:
+          enum:
+          - tax_code
+          type: string
+      required:
+      - id
+      - object
+      - name
+      - description
+      type: object
+    TransformQuantity:
+      additionalProperties: true
+      properties:
+        divide_by:
+          type: integer
+        round:
+          enum:
+          - up
+          - down
+          type: string
+      required:
+      - divide_by
+      - round
       type: object
     WebhookEndpoint:
       additionalProperties: true
@@ -6348,6 +6631,39 @@ paths:
         lifecycle: served
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/prices
+    post:
+      description: Update a price. Body is application/x-www-form-urlencoded (ADR 0004); merchant-scoped
+        through the Fluveo /v1 tenant wrapper.
+      operationId: updatePrice
+      parameters:
+      - $ref: '#/components/parameters/pricePath'
+      - $ref: '#/components/parameters/idempotencyKey'
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PriceUpdate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Price'
+          description: Stripe-compatible response
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Stripe-compatible error response
+      x-fluveo-compatibility:
+        audience: merchant_public
+        auth_policy: stripe_secret_key
+        idempotency_policy: required_on_retryable_write
+        lifecycle: served
+        mode_policy: test_only
+        stripe_reference: https://docs.stripe.com/api/prices
   /v1/products:
     get:
       description: List products in created-desc order, merchant-scoped. Returns up to the service's fixed
@@ -6406,6 +6722,32 @@ paths:
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/products
   /v1/products/{product}:
+    delete:
+      description: Delete a product. Refused while any price references it; archive with active=false
+        instead.
+      operationId: deleteProduct
+      parameters:
+      - $ref: '#/components/parameters/productPath'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedProduct'
+          description: Stripe-compatible response
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Stripe-compatible error response
+      x-fluveo-compatibility:
+        audience: merchant_public
+        auth_policy: stripe_secret_key
+        idempotency_policy: not_applicable
+        lifecycle: served
+        mode_policy: test_only
+        stripe_reference: https://docs.stripe.com/api/products
     get:
       description: Retrieve one product by id, merchant-scoped.
       operationId: retrieveProduct
@@ -6428,6 +6770,39 @@ paths:
         audience: merchant_public
         auth_policy: stripe_secret_key
         idempotency_policy: not_applicable
+        lifecycle: served
+        mode_policy: test_only
+        stripe_reference: https://docs.stripe.com/api/products
+    post:
+      description: Update a product. Body is application/x-www-form-urlencoded (ADR 0004); merchant-scoped
+        through the Fluveo /v1 tenant wrapper.
+      operationId: updateProduct
+      parameters:
+      - $ref: '#/components/parameters/productPath'
+      - $ref: '#/components/parameters/idempotencyKey'
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductUpdate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: Stripe-compatible response
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Stripe-compatible error response
+      x-fluveo-compatibility:
+        audience: merchant_public
+        auth_policy: stripe_secret_key
+        idempotency_policy: required_on_retryable_write
         lifecycle: served
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/products

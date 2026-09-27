@@ -2838,8 +2838,9 @@ components:
     PaymentLinkCreate:
       additionalProperties: false
       description: 'Create with exactly one money shape: flat amount+currency (Fluveo extension) or 1..20
-        line_items with inline price_data; price lookup ids are unsupported. expires_at is a Fluveo extension.
-        Sent as application/x-www-form-urlencoded; the create honors Idempotency-Key.'
+        line_items, each with inline price_data or a stored price id (SC-D45: the router resolves the
+        price from the merchant catalog; its unit_amount and currency are the only money source). expires_at
+        is a Fluveo extension. Sent as application/x-www-form-urlencoded; the create honors Idempotency-Key.'
       oneOf:
       - description: Flat amount/currency shape. Mutually exclusive with line_items.
         not:
@@ -2871,7 +2872,30 @@ components:
           line_items:
             items:
               additionalProperties: false
+              description: 'Exactly one of price (a stored catalog price id) or price_data (inline): an
+                item with both, or with neither, is refused.'
+              not:
+                anyOf:
+                - required:
+                  - price
+                  - price_data
+                  type: object
+                - not:
+                    anyOf:
+                    - required:
+                      - price
+                      type: object
+                    - required:
+                      - price_data
+                      type: object
+                    type: object
+                  type: object
+                type: object
               properties:
+                price:
+                  description: A stored catalog price id (SC-D45). Mutually exclusive with price_data.
+                  pattern: ^price_[A-Za-z0-9_]{1,200}$
+                  type: string
                 price_data:
                   additionalProperties: false
                   properties:
@@ -2896,8 +2920,6 @@ components:
                 quantity:
                   minimum: 1
                   type: integer
-              required:
-              - price_data
               type: object
             maxItems: 20
             minItems: 1
@@ -2997,13 +3019,38 @@ components:
           maxLength: 500
           type: string
         line_items:
-          description: 1..20 items with inline price_data, all in the same currency, collapsed onto the
-            flat total (spec 22745 P4). No price lookup ids; adjustable_quantity is rejected until the
-            hosted page grows a quantity selector. Mutually exclusive with the flat amount/currency shape.
-            Itemization is served by GET /v1/payment_links/{link}/line_items.
+          description: 1..20 items, all in the same currency, collapsed onto the flat total (spec 22745
+            P4). Each item has exactly one of inline price_data or price, a stored one-time, active, per-unit
+            price of the authenticated merchant and mode (SC-D45); an unknown, foreign or other-mode price
+            answers 400 resource_missing. adjustable_quantity is rejected until the hosted page grows
+            a quantity selector. Mutually exclusive with the flat amount/currency shape. Itemization is
+            served by GET /v1/payment_links/{link}/line_items.
           items:
             additionalProperties: false
+            description: 'Exactly one of price (a stored catalog price id) or price_data (inline): an
+              item with both, or with neither, is refused.'
+            not:
+              anyOf:
+              - required:
+                - price
+                - price_data
+                type: object
+              - not:
+                  anyOf:
+                  - required:
+                    - price
+                    type: object
+                  - required:
+                    - price_data
+                    type: object
+                  type: object
+                type: object
+              type: object
             properties:
+              price:
+                description: A stored catalog price id (SC-D45). Mutually exclusive with price_data.
+                pattern: ^price_[A-Za-z0-9_]{1,200}$
+                type: string
               price_data:
                 additionalProperties: false
                 properties:
@@ -3028,8 +3075,6 @@ components:
               quantity:
                 minimum: 1
                 type: integer
-            required:
-            - price_data
             type: object
           maxItems: 20
           minItems: 1
@@ -3088,6 +3133,33 @@ components:
           enum:
           - item
           type: string
+        price:
+          additionalProperties: true
+          description: Present when the item was created from a stored catalog price (SC-D45).
+          properties:
+            currency:
+              pattern: ^[a-z]{3}$
+              type: string
+            id:
+              pattern: ^price_
+              type: string
+            object:
+              enum:
+              - price
+              type: string
+            type:
+              enum:
+              - one_time
+              type: string
+            unit_amount:
+              type: integer
+          required:
+          - id
+          - object
+          - currency
+          - unit_amount
+          - type
+          type: object
         quantity:
           minimum: 1
           type: integer

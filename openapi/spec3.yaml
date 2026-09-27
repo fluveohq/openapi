@@ -5854,6 +5854,14 @@ paths:
         name: object
         schema:
           type: string
+      - description: 'Fluveo extension (INV-EV5): the PaymentIntent''s events plus those of the Charges
+          and Refunds it owns. Not a Stripe parameter; a value that is not a PaymentIntent id is a 400
+          naming payment_intent.'
+        in: query
+        name: payment_intent
+        schema:
+          pattern: ^pi_.+
+          type: string
       responses:
         '200':
           content:

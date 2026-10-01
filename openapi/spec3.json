@@ -6697,6 +6697,110 @@
         ],
         "type": "object"
       },
+      "WebhookEndpointDeliveryAttempt": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt": {
+            "description": "1-based position in the retry ladder, or null where the sender keeps no counter",
+            "nullable": true,
+            "type": "integer"
+          },
+          "created": {
+            "type": "integer"
+          },
+          "event_id": {
+            "type": "string"
+          },
+          "event_type": {
+            "type": "string"
+          },
+          "failure_code": {
+            "enum": [
+              "http_error",
+              "timeout",
+              "connection_failed",
+              "destination_rejected"
+            ],
+            "nullable": true,
+            "type": "string"
+          },
+          "latency_ms": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "livemode": {
+            "type": "boolean"
+          },
+          "object": {
+            "enum": [
+              "webhook_endpoint_delivery_attempt"
+            ],
+            "type": "string"
+          },
+          "response_status": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "result": {
+            "enum": [
+              "succeeded",
+              "failed"
+            ],
+            "type": "string"
+          },
+          "test_event": {
+            "type": "boolean"
+          },
+          "webhook_endpoint": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "object",
+          "webhook_endpoint",
+          "event_id",
+          "event_type",
+          "test_event",
+          "attempt",
+          "created",
+          "livemode",
+          "result",
+          "failure_code",
+          "response_status",
+          "latency_ms"
+        ],
+        "type": "object"
+      },
+      "WebhookEndpointDeliveryAttemptList": {
+        "additionalProperties": true,
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/WebhookEndpointDeliveryAttempt"
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "object": {
+            "enum": [
+              "list"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "object",
+          "data",
+          "has_more",
+          "url"
+        ],
+        "type": "object"
+      },
       "WebhookEndpointList": {
         "additionalProperties": true,
         "properties": {
@@ -6724,6 +6828,138 @@
           "data",
           "has_more",
           "url"
+        ],
+        "type": "object"
+      },
+      "WebhookEndpointTestDelivery": {
+        "additionalProperties": false,
+        "properties": {
+          "created": {
+            "type": "integer"
+          },
+          "event_id": {
+            "pattern": "^evt_test_[A-Za-z0-9]{24}$",
+            "type": "string"
+          },
+          "event_type": {
+            "enum": [
+              "payment_intent.succeeded",
+              "payment_intent.processing",
+              "payment_intent.payment_failed",
+              "payment_intent.canceled",
+              "payment_intent.amount_capturable_updated",
+              "payment_intent.requires_action",
+              "setup_intent.succeeded",
+              "setup_intent.setup_failed",
+              "charge.refunded",
+              "refund.failed",
+              "charge.dispute.created",
+              "charge.dispute.updated",
+              "charge.dispute.closed",
+              "mandate.updated",
+              "payout.paid",
+              "payout.failed",
+              "payout.created",
+              "payout.canceled"
+            ],
+            "type": "string"
+          },
+          "failure_code": {
+            "enum": [
+              "http_error",
+              "timeout",
+              "connection_failed",
+              "destination_rejected"
+            ],
+            "nullable": true,
+            "type": "string"
+          },
+          "latency_ms": {
+            "description": "Milliseconds from the request to the response headers; null when no request was made",
+            "nullable": true,
+            "type": "integer"
+          },
+          "livemode": {
+            "enum": [
+              false
+            ],
+            "type": "boolean"
+          },
+          "object": {
+            "enum": [
+              "webhook_endpoint_test_delivery"
+            ],
+            "type": "string"
+          },
+          "response_excerpt": {
+            "description": "At most the first 1024 bytes of the endpoint's answer, as text: control characters become spaces and every webhook signing secret with its prefix (any letter case) is redacted. Returned once and never stored; null when no body was read, including routers built with the local webhook allowlist.",
+            "nullable": true,
+            "type": "string"
+          },
+          "response_excerpt_truncated": {
+            "type": "boolean"
+          },
+          "response_status": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "result": {
+            "enum": [
+              "succeeded",
+              "failed"
+            ],
+            "type": "string"
+          },
+          "webhook_endpoint": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "object",
+          "webhook_endpoint",
+          "event_id",
+          "event_type",
+          "created",
+          "livemode",
+          "result",
+          "failure_code",
+          "response_status",
+          "latency_ms",
+          "response_excerpt",
+          "response_excerpt_truncated"
+        ],
+        "type": "object"
+      },
+      "WebhookEndpointTestEventRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "description": "One of the 18 Stripe event types Fluveo delivers; platform `hs.*` types are refused",
+            "enum": [
+              "payment_intent.succeeded",
+              "payment_intent.processing",
+              "payment_intent.payment_failed",
+              "payment_intent.canceled",
+              "payment_intent.amount_capturable_updated",
+              "payment_intent.requires_action",
+              "setup_intent.succeeded",
+              "setup_intent.setup_failed",
+              "charge.refunded",
+              "refund.failed",
+              "charge.dispute.created",
+              "charge.dispute.updated",
+              "charge.dispute.closed",
+              "mandate.updated",
+              "payout.paid",
+              "payout.failed",
+              "payout.created",
+              "payout.canceled"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
         ],
         "type": "object"
       },
@@ -10774,6 +11010,82 @@
         }
       }
     },
+    "/v1/webhook_endpoints/{endpoint_id}/delivery_attempts": {
+      "get": {
+        "description": "Fluveo extension (Test mode only): the newest delivery attempts of this endpoint, real and test, newest first: at most 20 from the last 7 days. The history is best-effort and may be incomplete; an unavailable history answers 503 `webhook_attempts_unavailable`, never an empty list. Any query parameter is refused with 400.",
+        "operationId": "listWebhookEndpointDeliveryAttempts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "endpoint_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookEndpointDeliveryAttemptList"
+                }
+              }
+            },
+            "description": "Fluveo extension response: the newest delivery attempts, newest first"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "A query parameter was sent, or the request is in Live mode (`test_mode_only`)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Missing or invalid credential"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "No such webhook endpoint for this store and mode (`resource_missing`)"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The delivery history could not be read (`webhook_attempts_unavailable`)"
+          }
+        },
+        "x-fluveo-compatibility": {
+          "audience": "merchant_public",
+          "auth_policy": "stripe_secret_key",
+          "idempotency_policy": "not_applicable",
+          "lifecycle": "served",
+          "mode_policy": "test_only",
+          "stripe_reference": null
+        }
+      }
+    },
     "/v1/webhook_endpoints/{endpoint_id}/rotate_secret": {
       "post": {
         "description": "Fluveo extension: replace one endpoint signing secret and return the new secret once.",
@@ -10808,6 +11120,110 @@
               }
             },
             "description": "Stripe-compatible error response"
+          }
+        },
+        "x-fluveo-compatibility": {
+          "audience": "merchant_public",
+          "auth_policy": "stripe_secret_key",
+          "idempotency_policy": "not_applicable",
+          "lifecycle": "served",
+          "mode_policy": "test_only",
+          "stripe_reference": null
+        }
+      }
+    },
+    "/v1/webhook_endpoints/{endpoint_id}/send_test_event": {
+      "post": {
+        "description": "Fluveo extension (Test mode only): send one signed synthetic test event of `type` to this endpoint's saved URL and answer what the endpoint returned. The event is marked in its signed body (`livemode: false`, `fluveo_test_event: true`, an `evt_test_` id), is never listed in /v1/events, and is never retried. Disabled endpoints receive test events and stay disabled. Only saved URLs using https on port 443 can receive a test event. An optional `Idempotency-Key` header sets the test event id: the same key, endpoint, and event type always give the same `evt_test_` id, and there is no replay journal. A malformed key (more than one header, empty, non-printable, or longer than 255 characters) is refused with 400. Any query parameter is refused with 400. Test events are off unless enabled for the environment; when off, the send is refused with 400 `webhook_test_events_disabled`. Limits, each a sustained rate with a burst of the same size: per store and mode sustained 20 per minute with bursts of 20; per endpoint sustained 5 per minute with bursts of 5; per destination host, store, and mode sustained 10 per minute with bursts of 10; per destination host across all stores sustained 300 per minute with bursts of 300.",
+        "operationId": "sendWebhookEndpointTestEvent",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "endpoint_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookEndpointTestEventRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookEndpointTestDelivery"
+                }
+              }
+            },
+            "description": "Fluveo extension response: the outcome of the one test delivery (a failed delivery is still a 200)"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Refused before anything was sent: a missing, unknown, or unsubscribed `type`; an unknown form field or query parameter; a malformed `Idempotency-Key`; Live mode (`test_mode_only`); test events not enabled (`webhook_test_events_disabled`); webhook delivery disabled (`webhook_delivery_disabled`); a saved URL that is not https on port 443 (`webhook_test_port_unsupported`); or a saved URL that moved to another host while the send was being checked (`webhook_test_destination_changed`)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Missing or invalid credential"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "No such webhook endpoint for this store and mode (`resource_missing`)"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "A test-send limit is spent (`rate_limit`); nothing was sent",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the spent limit admits another test send (1 to 60)",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The limit could not be checked (`rate_limit_unavailable`); nothing was sent"
           }
         },
         "x-fluveo-compatibility": {

@@ -1320,6 +1320,18 @@ components:
               type: string
             description:
               type: string
+            metadata:
+              additionalProperties:
+                maxLength: 500
+                type: string
+              description: The PaymentIntent's own metadata; the session's metadata stays on the session.
+                At most 32 entries (Stripe's 50 minus the 18 keys Fluveo and the payment processor reserve
+                on the PaymentIntent), keys up to 40 characters, values up to 500. Reserved fluveo_ and
+                payment_link keys, order_id (any case) and invoice are refused.
+              maxProperties: 32
+              type: object
+              x-fluveo-key-max-length: 40
+              x-fluveo-reserved-key-policy: case_insensitive_fluveo_prefix_and_payment_link
           type: object
         payment_method_types:
           items:

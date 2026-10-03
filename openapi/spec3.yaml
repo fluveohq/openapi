@@ -4536,6 +4536,8 @@ components:
           type: string
         param:
           type: string
+        payment_intent:
+          $ref: '#/components/schemas/PaymentIntent'
         type:
           enum:
           - api_error

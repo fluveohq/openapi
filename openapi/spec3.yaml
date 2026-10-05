@@ -1829,6 +1829,116 @@ components:
       - object
       - deleted
       type: object
+    DisputeUpdate:
+      additionalProperties: false
+      properties:
+        evidence:
+          description: Evidence to upload, to respond to a dispute. Updating any field in the hash will
+            submit all fields in the hash for review. The combined character count of all fields is limited
+            to 150,000.
+          properties:
+            access_activity_log:
+              description: Any server or activity logs showing proof that the customer accessed or downloaded
+                the purchased digital product. This information should include IP addresses, corresponding
+                timestamps, and any detailed recorded activity. Has a maximum character count of 20,000.
+              maxLength: 20000
+              type: string
+            billing_address:
+              description: The billing address provided by the customer.
+              maxLength: 5000
+              type: string
+            cancellation_policy_disclosure:
+              description: An explanation of how and when the customer was shown your refund policy prior
+                to purchase. Has a maximum character count of 20,000.
+              maxLength: 20000
+              type: string
+            cancellation_rebuttal:
+              description: A justification for why the customer's subscription was not canceled. Has a
+                maximum character count of 20,000.
+              maxLength: 20000
+              type: string
+            customer_email_address:
+              description: The email address of the customer.
+              maxLength: 5000
+              type: string
+            customer_name:
+              description: The name of the customer.
+              maxLength: 5000
+              type: string
+            customer_purchase_ip:
+              description: The IP address that the customer used when making the purchase.
+              maxLength: 5000
+              type: string
+            duplicate_charge_explanation:
+              description: An explanation of the difference between the disputed charge versus the prior
+                charge that appears to be a duplicate. Has a maximum character count of 20,000.
+              maxLength: 20000
+              type: string
+            product_description:
+              description: A description of the product or service that was sold. Has a maximum character
+                count of 20,000.
+              maxLength: 20000
+              type: string
+            refund_policy_disclosure:
+              description: Documentation demonstrating that the customer was shown your refund policy
+                prior to purchase. Has a maximum character count of 20,000.
+              maxLength: 20000
+              type: string
+            refund_refusal_explanation:
+              description: A justification for why the customer is not entitled to a refund. Has a maximum
+                character count of 20,000.
+              maxLength: 20000
+              type: string
+            service_date:
+              description: The date on which the customer received or began receiving the purchased service,
+                in a clear human-readable format.
+              maxLength: 5000
+              type: string
+            shipping_address:
+              description: The address to which a physical product was shipped. You should try to include
+                as complete address information as possible.
+              maxLength: 5000
+              type: string
+            shipping_carrier:
+              description: The delivery service that shipped a physical product, such as Fedex, UPS, USPS,
+                etc. If multiple carriers were used for this purchase, please separate them with commas.
+              maxLength: 5000
+              type: string
+            shipping_date:
+              description: The date on which a physical product began its route to the shipping address,
+                in a clear human-readable format.
+              maxLength: 5000
+              type: string
+            shipping_tracking_number:
+              description: The tracking number for a physical product, obtained from the delivery service.
+                If multiple tracking numbers were generated for this purchase, please separate them with
+                commas.
+              maxLength: 5000
+              type: string
+            uncategorized_text:
+              description: Any additional evidence or statements. Has a maximum character count of 20,000.
+              maxLength: 20000
+              type: string
+          title: dispute_evidence_params
+          type: object
+        metadata:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - enum:
+            - ''
+            type: string
+          description: Set of [key-value pairs](https://docs.stripe.com/api/metadata) that you can attach
+            to an object. This can be useful for storing additional information about the object in a
+            structured format. Individual keys can be unset by posting an empty value to them. All keys
+            can be unset by posting an empty value to `metadata`.
+        submit:
+          description: Whether to immediately submit evidence to the bank. If `false`, evidence is staged
+            on the dispute. Staged evidence is visible in the API and Dashboard, and can be submitted
+            to the bank by making another request with this attribute set to `true` (the default).
+          type: boolean
+      type: object
     ErrorResponse:
       additionalProperties: false
       properties:
@@ -4935,6 +5045,8 @@ components:
           pattern: ^evt_test_[A-Za-z0-9]{24}$
           type: string
         event_type:
+          description: The sent type; `charge.succeeded`, `charge.failed` and `charge.captured` only for
+            accounts whose payments are processed through Stripe Connect
           enum:
           - payment_intent.succeeded
           - payment_intent.processing
@@ -4946,6 +5058,9 @@ components:
           - setup_intent.setup_failed
           - charge.refunded
           - refund.failed
+          - charge.succeeded
+          - charge.failed
+          - charge.captured
           - charge.dispute.created
           - charge.dispute.updated
           - charge.dispute.closed
@@ -5013,7 +5128,9 @@ components:
       additionalProperties: false
       properties:
         type:
-          description: One of the 18 Stripe event types Fluveo delivers; platform `hs.*` types are refused
+          description: One of the 21 Stripe event types Fluveo delivers; `charge.succeeded`, `charge.failed`
+            and `charge.captured` are delivered for accounts whose payments are processed through Stripe
+            Connect (on other accounts they are refused with 400); platform `hs.*` types are refused
           enum:
           - payment_intent.succeeded
           - payment_intent.processing
@@ -5025,6 +5142,9 @@ components:
           - setup_intent.setup_failed
           - charge.refunded
           - refund.failed
+          - charge.succeeded
+          - charge.failed
+          - charge.captured
           - charge.dispute.created
           - charge.dispute.updated
           - charge.dispute.closed

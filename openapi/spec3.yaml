@@ -2621,9 +2621,8 @@ components:
       type: object
     PaymentIntentNextAction:
       additionalProperties: false
-      description: Test-mode redirect action. The current compatible subset emits it only for the deterministic
-        phonypay connector through an opaque, cell-affine continuation; real-PSP action callbacks remain
-        fail-closed.
+      description: Test-mode redirect action. `redirect_to_url.url` sends the customer to authenticate;
+        after completion the customer is redirected to `redirect_to_url.return_url`.
       nullable: true
       properties:
         redirect_to_url:
@@ -2655,10 +2654,15 @@ components:
       additionalProperties: false
       properties:
         return_url:
+          description: If the customer does not exit their browser while authenticating, they will be
+            redirected to this specified URL after completion. For payments processed through Stripe Connect,
+            the redirect adds the `payment_intent`, `payment_intent_client_secret` and `redirect_status`
+            URL query parameters. `redirect_status` is `succeeded`, `processing` or `failed`.
           format: uri
           nullable: true
           type: string
         url:
+          description: The URL you must redirect your customer to in order to authenticate the payment.
           format: uri
           type: string
       required:
@@ -3579,6 +3583,15 @@ components:
       - object
       - type
       type: object
+    PaymentMethodAttach:
+      additionalProperties: false
+      properties:
+        customer:
+          description: The customer the card already belongs to.
+          type: string
+      required:
+      - customer
+      type: object
     PaymentMethodBillingAddress:
       additionalProperties: false
       properties:
@@ -4266,6 +4279,10 @@ components:
         metadata:
           $ref: '#/components/schemas/Metadata'
         next_action:
+          description: If `type` is `redirect_to_url`, the customer is redirected to `redirect_to_url.return_url`
+            after authentication; for SetupIntents processed through Stripe Connect, the redirect adds
+            the `setup_intent`, `setup_intent_client_secret` and `redirect_status` URL query parameters.
+            `redirect_status` is `succeeded`, `processing` or `failed`.
           nullable: true
           type: object
         object:
@@ -5190,6 +5207,12 @@ components:
           - expires_at
           type: object
         redirect_to_url:
+          description: 'If `type` is `redirect_to_url`: `url` is the URL you must redirect your customer
+            to in order to authenticate the payment. If the customer does not exit their browser while
+            authenticating, they will be redirected to `return_url` after completion; for payments processed
+            through Stripe Connect, the redirect adds the `payment_intent`, `payment_intent_client_secret`
+            and `redirect_status` URL query parameters. `redirect_status` is `succeeded`, `processing`
+            or `failed`.'
           type: object
         type:
           enum:
@@ -5567,6 +5590,57 @@ paths:
       - $ref: '#/components/parameters/ending_before'
       - $ref: '#/components/parameters/balanceTransactionSource'
       - $ref: '#/components/parameters/balanceTransactionExpand'
+      - description: Only return transactions that were created during the given date interval.
+        explode: true
+        in: query
+        name: created
+        required: false
+        schema:
+          anyOf:
+          - properties:
+              gt:
+                description: Minimum value to filter by (exclusive)
+                type: integer
+              gte:
+                description: Minimum value to filter by (inclusive)
+                type: integer
+              lt:
+                description: Maximum value to filter by (exclusive)
+                type: integer
+              lte:
+                description: Maximum value to filter by (inclusive)
+                type: integer
+            title: range_query_specs
+            type: object
+          - type: integer
+        style: deepObject
+      - description: For automatic Stripe payouts only, only returns transactions that were paid out on
+          the specified payout ID.
+        in: query
+        name: payout
+        required: false
+        schema:
+          maxLength: 5000
+          type: string
+        style: form
+      - description: 'Only returns transactions of the given type. One of: `adjustment`, `advance`, `advance_funding`,
+          `anticipation_repayment`, `application_fee`, `application_fee_refund`, `charge`, `climate_order_purchase`,
+          `climate_order_refund`, `connect_collection_transfer`, `contribution`, `inbound_transfer`, `inbound_transfer_reversal`,
+          `issuing_authorization_hold`, `issuing_authorization_release`, `issuing_dispute`, `issuing_transaction`,
+          `obligation_outbound`, `obligation_reversal_inbound`, `payment`, `payment_failure_refund`, `payment_network_reserve_hold`,
+          `payment_network_reserve_release`, `payment_refund`, `payment_reversal`, `payment_unreconciled`,
+          `payout`, `payout_cancel`, `payout_failure`, `payout_minimum_balance_hold`, `payout_minimum_balance_release`,
+          `refund`, `refund_failure`, `reserve_transaction`, `reserved_funds`, `reserve_hold`, `reserve_release`,
+          `stripe_fee`, `stripe_fx_fee`, `stripe_balance_payment_debit`, `stripe_balance_payment_debit_reversal`,
+          `tax_fee`, `topup`, `topup_reversal`, `transfer`, `transfer_cancel`, `transfer_failure`, `transfer_refund`,
+          or `fee_credit_funding`.'
+        in: query
+        name: type
+        required: false
+        schema:
+          maxLength: 5000
+          type: string
+        style: form
       responses:
         '200':
           content:
@@ -6831,6 +6905,80 @@ paths:
         lifecycle: served
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/payment_methods
+  /v1/payment_methods/{payment_method_id}/attach:
+    post:
+      description: 'US stores only. Confirms a saved card of the authenticated merchant and mode is attached
+        to `customer`, which must be that card''s own customer: a card on another customer and a detached
+        card are refused, and no card moves. Idempotency-Key durably binds the merchant, mode, operation,
+        card and body for 24-hour byte-identical replay.'
+      operationId: attachPaymentMethod
+      parameters:
+      - in: path
+        name: payment_method_id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/idempotencyKey'
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentMethodAttach'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethod'
+          description: Stripe-compatible response
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Stripe-compatible error response
+      x-fluveo-compatibility:
+        audience: merchant_public
+        auth_policy: stripe_secret_key
+        idempotency_policy: required_on_retryable_write
+        lifecycle: served
+        mode_policy: test_only
+        stripe_reference: https://docs.stripe.com/api/payment_methods
+  /v1/payment_methods/{payment_method_id}/detach:
+    post:
+      description: 'US stores only. Detaches a saved card of the authenticated merchant and mode from
+        its customer: the card can no longer pay or be set up, and cannot be attached again. Takes no
+        parameters. Idempotency-Key durably binds the merchant, mode, operation and card for 24-hour byte-identical
+        replay; a retry with the same key after an interrupted detach finishes it.'
+      operationId: detachPaymentMethod
+      parameters:
+      - in: path
+        name: payment_method_id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/idempotencyKey'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethod'
+          description: Stripe-compatible response
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Stripe-compatible error response
+      x-fluveo-compatibility:
+        audience: merchant_public
+        auth_policy: stripe_secret_key
+        idempotency_policy: required_on_retryable_write
+        lifecycle: served
+        mode_policy: test_only
+        stripe_reference: https://docs.stripe.com/api/payment_methods
   /v1/prices:
     get:
       description: List prices in created-desc order, merchant-scoped. Returns up to the service's fixed
@@ -7095,6 +7243,45 @@ paths:
       - $ref: '#/components/parameters/limit'
       - $ref: '#/components/parameters/starting_after'
       - $ref: '#/components/parameters/ending_before'
+      - description: Only return refunds for the charge specified by this charge ID.
+        in: query
+        name: charge
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Only return refunds that were created during the given date interval.
+        explode: true
+        in: query
+        name: created
+        required: false
+        schema:
+          anyOf:
+          - properties:
+              gt:
+                description: Minimum value to filter by (exclusive)
+                type: integer
+              gte:
+                description: Minimum value to filter by (inclusive)
+                type: integer
+              lt:
+                description: Maximum value to filter by (exclusive)
+                type: integer
+              lte:
+                description: Maximum value to filter by (inclusive)
+                type: integer
+            title: range_query_specs
+            type: object
+          - type: integer
+        style: deepObject
+      - description: Only return refunds for the PaymentIntent specified by this ID.
+        in: query
+        name: payment_intent
+        required: false
+        schema:
+          maxLength: 5000
+          type: string
+        style: form
       responses:
         '200':
           content:
@@ -7476,6 +7663,28 @@ paths:
       operationId: listWebhookEndpoints
       parameters:
       - $ref: '#/components/parameters/limit'
+      - description: A cursor for use in pagination. `starting_after` is an object ID that defines your
+          place in the list. For instance, if you make a list request and receive 100 objects, ending
+          with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch
+          the next page of the list.
+        in: query
+        name: starting_after
+        required: false
+        schema:
+          maxLength: 5000
+          type: string
+        style: form
+      - description: A cursor for use in pagination. `ending_before` is an object ID that defines your
+          place in the list. For instance, if you make a list request and receive 100 objects, starting
+          with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the
+          previous page of the list.
+        in: query
+        name: ending_before
+        required: false
+        schema:
+          maxLength: 5000
+          type: string
+        style: form
       responses:
         '200':
           content:

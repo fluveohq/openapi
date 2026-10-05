@@ -3242,7 +3242,8 @@ components:
     PaymentLinkUpdate:
       additionalProperties: false
       description: 'Updatable: active, expires_at, metadata, after_completion, restrictions, inactive_message,
-        submit_type — aligned with the service''s SUPPORTED_UPDATE (spec 22745 P0). Sent as application/x-www-form-urlencoded.'
+        description, submit_type — aligned with the service''s SUPPORTED_UPDATE (spec 22745 P0). Sent
+        as application/x-www-form-urlencoded.'
       properties:
         active:
           description: false deactivates immediately and short-circuits other fields. true is a no-op
@@ -3321,6 +3322,12 @@ components:
               - hosted_confirmation
               type: string
           type: object
+        description:
+          description: Updates the link description without changing existing checkout snapshots. Empty
+            string or null clears it; omission preserves it.
+          maxLength: 1000
+          nullable: true
+          type: string
         expires_at:
           description: Unix timestamp; Fluveo extension. When supplied, must be 30 minutes to 30 days
             from request time. Omission leaves the stored expiry unchanged; an already-expired link cannot

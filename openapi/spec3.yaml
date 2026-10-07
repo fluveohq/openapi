@@ -2060,6 +2060,11 @@ components:
           type: string
         payment_intent:
           type: string
+        post_payment_credit_notes_amount:
+          description: Smallest currency unit (minor units / cents). Credit notes issued against cash
+            this invoice had already collected; it does not reduce amount_due. The pre-payment counterpart
+            is not served.
+          type: integer
         status:
           enum:
           - draft

@@ -1767,6 +1767,15 @@ components:
           type: string
         email:
           type: string
+        invoice_settings:
+          additionalProperties: false
+          description: 'Fluveo implements only default_payment_method: a saved card attached to this customer,
+            or an empty value to clear it (merchant keys).'
+          properties:
+            default_payment_method:
+              maxLength: 5000
+              type: string
+          type: object
         metadata:
           $ref: '#/components/schemas/Metadata'
         name:

@@ -4395,6 +4395,10 @@ components:
         customer:
           nullable: true
           type: string
+        description:
+          maxLength: 5000
+          nullable: true
+          type: string
         id:
           pattern: ^seti_.+
           type: string

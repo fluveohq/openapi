@@ -2604,6 +2604,10 @@
                 "maxLength": 5000,
                 "type": "string"
               },
+              "cancellation_policy": {
+                "description": "(ID of a [file upload](https://stripe.com/docs/guides/file-upload)) Your subscription cancellation policy, as shown to the customer.",
+                "type": "string"
+              },
               "cancellation_policy_disclosure": {
                 "description": "An explanation of how and when the customer was shown your refund policy prior to purchase. Has a maximum character count of 20,000.",
                 "maxLength": 20000,
@@ -2612,6 +2616,10 @@
               "cancellation_rebuttal": {
                 "description": "A justification for why the customer's subscription was not canceled. Has a maximum character count of 20,000.",
                 "maxLength": 20000,
+                "type": "string"
+              },
+              "customer_communication": {
+                "description": "(ID of a [file upload](https://stripe.com/docs/guides/file-upload)) Any communication with the customer that you feel is relevant to your case. Examples include emails proving that the customer received the product or service, or demonstrating their use of or satisfaction with the product or service.",
                 "type": "string"
               },
               "customer_email_address": {
@@ -2629,6 +2637,14 @@
                 "maxLength": 5000,
                 "type": "string"
               },
+              "customer_signature": {
+                "description": "(ID of a [file upload](https://stripe.com/docs/guides/file-upload)) A relevant document or contract showing the customer's signature.",
+                "type": "string"
+              },
+              "duplicate_charge_documentation": {
+                "description": "(ID of a [file upload](https://stripe.com/docs/guides/file-upload)) Documentation for the prior charge that can uniquely identify the charge, such as a receipt, shipping label, work order, etc. This document should be paired with a similar document from the disputed payment that proves the two payments are separate.",
+                "type": "string"
+              },
               "duplicate_charge_explanation": {
                 "description": "An explanation of the difference between the disputed charge versus the prior charge that appears to be a duplicate. Has a maximum character count of 20,000.",
                 "maxLength": 20000,
@@ -2637,6 +2653,14 @@
               "product_description": {
                 "description": "A description of the product or service that was sold. Has a maximum character count of 20,000.",
                 "maxLength": 20000,
+                "type": "string"
+              },
+              "receipt": {
+                "description": "(ID of a [file upload](https://stripe.com/docs/guides/file-upload)) Any receipt or message sent to the customer notifying them of the charge.",
+                "type": "string"
+              },
+              "refund_policy": {
+                "description": "(ID of a [file upload](https://stripe.com/docs/guides/file-upload)) Your refund policy, as shown to the customer.",
                 "type": "string"
               },
               "refund_policy_disclosure": {
@@ -2654,6 +2678,10 @@
                 "maxLength": 5000,
                 "type": "string"
               },
+              "service_documentation": {
+                "description": "(ID of a [file upload](https://stripe.com/docs/guides/file-upload)) Documentation showing proof that a service was provided to the customer. This could include a copy of a signed contract, work order, or other form of written agreement.",
+                "type": "string"
+              },
               "shipping_address": {
                 "description": "The address to which a physical product was shipped. You should try to include as complete address information as possible.",
                 "maxLength": 5000,
@@ -2669,9 +2697,17 @@
                 "maxLength": 5000,
                 "type": "string"
               },
+              "shipping_documentation": {
+                "description": "(ID of a [file upload](https://stripe.com/docs/guides/file-upload)) Documentation showing proof that a product was shipped to the customer at the same address the customer provided to you. This could include a copy of the shipment receipt, shipping label, etc. It should show the customer's full shipping address, if possible.",
+                "type": "string"
+              },
               "shipping_tracking_number": {
                 "description": "The tracking number for a physical product, obtained from the delivery service. If multiple tracking numbers were generated for this purchase, please separate them with commas.",
                 "maxLength": 5000,
+                "type": "string"
+              },
+              "uncategorized_file": {
+                "description": "(ID of a [file upload](https://stripe.com/docs/guides/file-upload)) Any additional evidence or statements.",
                 "type": "string"
               },
               "uncategorized_text": {
@@ -2793,6 +2829,28 @@
           "data",
           "has_more",
           "url"
+        ],
+        "type": "object"
+      },
+      "FileCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "description": "A file to upload. Make sure that the specifications follow RFC 2388, which defines file transfers for the `multipart/form-data` protocol.",
+            "format": "binary",
+            "type": "string"
+          },
+          "purpose": {
+            "description": "The [purpose](https://docs.stripe.com/file-upload#uploading-a-file) of the uploaded file.",
+            "enum": [
+              "dispute_evidence"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "file",
+          "purpose"
         ],
         "type": "object"
       },
@@ -7821,6 +7879,25 @@
         "type": "object"
       },
       "payout": {
+        "properties": {
+          "arrival_date": {
+            "description": "Date that you can expect the payout to arrive in the bank. This factors in delays to account for weekends or bank holidays.",
+            "format": "unix-time",
+            "type": "integer"
+          },
+          "failure_code": {
+            "description": "Error code that provides a reason for a payout failure, if available. View our [list of failure codes](https://docs.stripe.com/api#payout_failures).",
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "failure_message": {
+            "description": "Message that provides the reason for a payout failure, if available.",
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "radar_radar_options": {

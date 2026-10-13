@@ -6664,6 +6664,11 @@ paths:
       - $ref: '#/components/parameters/starting_after'
       - $ref: '#/components/parameters/ending_before'
       - $ref: '#/components/parameters/customer'
+      - $ref: '#/components/parameters/created'
+      - $ref: '#/components/parameters/created_gt'
+      - $ref: '#/components/parameters/created_gte'
+      - $ref: '#/components/parameters/created_lt'
+      - $ref: '#/components/parameters/created_lte'
       responses:
         '200':
           content:

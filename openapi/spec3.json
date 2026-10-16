@@ -2978,6 +2978,11 @@
             ],
             "type": "string"
           },
+          "currency": {
+            "description": "Three-letter ISO code, lowercase. Defaults to the pending items' currency, else usd. Must match every pending invoice item; otherwise a 400 currency_mismatch.",
+            "pattern": "^[a-z]{3}$",
+            "type": "string"
+          },
           "customer": {
             "type": "string"
           },
@@ -3039,10 +3044,19 @@
             "description": "Smallest currency unit (minor units / cents).",
             "type": "integer"
           },
+          "currency": {
+            "description": "Three-letter ISO code, lowercase, for an amount item. Defaults to usd; a price item takes the price's currency.",
+            "pattern": "^[a-z]{3}$",
+            "type": "string"
+          },
           "customer": {
             "type": "string"
           },
           "description": {
+            "type": "string"
+          },
+          "invoice": {
+            "description": "Attach the item to this draft invoice of the same customer instead of leaving it pending. The item currency must match the invoice currency; otherwise a 400 currency_mismatch.",
             "type": "string"
           },
           "metadata": {
@@ -3050,6 +3064,11 @@
           },
           "price": {
             "type": "string"
+          },
+          "quantity": {
+            "description": "Positive multiplier applied to amount or the price's unit amount. Defaults to 1.",
+            "minimum": 1,
+            "type": "integer"
           }
         },
         "required": [

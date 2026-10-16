@@ -2639,6 +2639,36 @@ components:
       - status
       - transfer_group
       type: object
+    PaymentIntentBillingDetails:
+      additionalProperties: false
+      description: 'Stripe''s `billing_details` of the new card (ADR 0111): accepted only with `type=card`
+        on a US Stripe Connect store''s `confirm=true` create or merchant-key confirm of a PaymentIntent
+        that holds no saved card; sent to Stripe on its PaymentMethod create, never on the PaymentIntent.
+        Every other request with billing is refused `400` as before.'
+      properties:
+        address:
+          additionalProperties: false
+          properties:
+            city:
+              type: string
+            country:
+              type: string
+            line1:
+              type: string
+            line2:
+              type: string
+            postal_code:
+              type: string
+            state:
+              type: string
+          type: object
+        email:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+      type: object
     PaymentIntentCancel:
       additionalProperties: false
       properties:
@@ -2825,6 +2855,8 @@ components:
       description: '`type=card` carries inline test-mode card data; `type=pix` carries no data (the Pix
         instruction is issued server-side and read back through `next_action`).'
       properties:
+        billing_details:
+          $ref: '#/components/schemas/PaymentIntentBillingDetails'
         card:
           $ref: '#/components/schemas/PaymentIntentCardData'
         type:
@@ -8224,4 +8256,4 @@ security:
 - basicAuth: []
 - bearerAuth: []
 servers:
-- url: https://api.fluveo.dev
+- url: https://api.devfluveo.com

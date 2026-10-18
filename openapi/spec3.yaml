@@ -18,7 +18,6 @@ components:
       name: id
       required: true
       schema:
-        pattern: ^(txn|bt)_.+
         type: string
     balanceTransactionSource:
       description: Filter balance transactions by the Stripe-shaped source object id. The launch mounted
@@ -26,7 +25,6 @@ components:
       in: query
       name: source
       schema:
-        pattern: ^ch_
         type: string
     charge:
       in: query
@@ -114,8 +112,6 @@ components:
       in: query
       name: limit
       schema:
-        maximum: 100
-        minimum: 1
         type: integer
     paymentLinkPath:
       in: path
@@ -154,7 +150,6 @@ components:
       name: refund
       required: true
       schema:
-        pattern: ^re_.+
         type: string
     sessionPath:
       in: path
@@ -167,7 +162,6 @@ components:
       name: setup_intent
       required: true
       schema:
-        pattern: ^seti_.+
         type: string
     starting_after:
       in: query
@@ -178,6 +172,10 @@ components:
       in: query
       name: status
       schema:
+        enum:
+        - complete
+        - expired
+        - open
         type: string
     subscriptionPath:
       in: path
@@ -309,7 +307,6 @@ components:
         id:
           description: 'Fluveo narrowing: not in upstream pin; truthful public id-prefix constraint: txn_.'
           maxLength: 5000
-          pattern: ^txn_.+
           type: string
         net:
           type: integer
@@ -328,7 +325,6 @@ components:
           nullable: true
           oneOf:
           - maxLength: 5000
-            pattern: ^ch_.+
             type: string
           - $ref: '#/components/schemas/Charge'
         status:
@@ -522,7 +518,6 @@ components:
         id:
           description: 'Fluveo narrowing: not in upstream pin; truthful public id-prefix constraint: ch_.'
           maxLength: 5000
-          pattern: ^ch_.+
           type: string
         level3:
           $ref: '#/components/schemas/level3'
@@ -564,6 +559,8 @@ components:
           anyOf:
           - $ref: '#/components/schemas/payment_method_details'
           nullable: true
+          required:
+          - type
         presentment_details:
           $ref: '#/components/schemas/payment_flows_payment_intent_presentment_details'
         radar_options:
@@ -1272,6 +1269,7 @@ components:
         client_reference_id:
           type: string
         customer:
+          maxLength: 5000
           type: string
         customer_email:
           type: string
@@ -1298,7 +1296,6 @@ components:
                     type: integer
                 type: object
               quantity:
-                minimum: 1
                 type: integer
             type: object
           type: array
@@ -1319,16 +1316,15 @@ components:
               - manual
               type: string
             description:
+              maxLength: 1000
               type: string
             metadata:
               additionalProperties:
-                maxLength: 500
                 type: string
               description: The PaymentIntent's own metadata; the session's metadata stays on the session.
                 At most 32 entries (Stripe's 50 minus the 18 keys Fluveo and the payment processor reserve
                 on the PaymentIntent), keys up to 40 characters, values up to 500. Reserved fluveo_ and
                 payment_link keys, order_id (any case) and invoice are refused.
-              maxProperties: 32
               type: object
               x-fluveo-key-max-length: 40
               x-fluveo-reserved-key-policy: case_insensitive_fluveo_prefix_and_payment_link
@@ -1348,9 +1344,6 @@ components:
           enum:
           - hosted
           type: string
-      required:
-      - line_items
-      - success_url
       type: object
     CheckoutSessionLineItem:
       additionalProperties: false
@@ -1372,7 +1365,7 @@ components:
         description:
           type: string
         id:
-          pattern: ^li_
+          maxLength: 5000
           type: string
         object:
           enum:
@@ -1384,7 +1377,7 @@ components:
             currency:
               type: string
             id:
-              pattern: ^price_
+              maxLength: 5000
               type: string
             object:
               enum:
@@ -1394,7 +1387,7 @@ components:
               additionalProperties: false
               properties:
                 id:
-                  pattern: ^prod_
+                  maxLength: 5000
                   type: string
                 name:
                   type: string
@@ -1444,6 +1437,7 @@ components:
           - list
           type: string
         url:
+          maxLength: 5000
           type: string
       required:
       - object
@@ -1582,7 +1576,6 @@ components:
         id:
           description: 'Fluveo narrowing: not in upstream pin; truthful public id-prefix constraint: cus_.'
           maxLength: 5000
-          pattern: ^cus_.+
           type: string
         individual_name:
           maxLength: 150
@@ -1603,7 +1596,6 @@ components:
           additionalProperties:
             maxLength: 500
             type: string
-          maxProperties: 50
           type: object
           x-fluveo-key-max-length: 40
         name:
@@ -1768,7 +1760,6 @@ components:
         email:
           type: string
         invoice_settings:
-          additionalProperties: false
           description: 'Fluveo implements only default_payment_method: a saved card attached to this customer,
             or an empty value to clear it (merchant keys).'
           properties:
@@ -1791,6 +1782,7 @@ components:
           - true
           type: boolean
         id:
+          maxLength: 5000
           type: string
         object:
           enum:
@@ -1828,6 +1820,7 @@ components:
           - true
           type: boolean
         id:
+          maxLength: 5000
           type: string
         object:
           enum:
@@ -2003,6 +1996,7 @@ components:
       additionalProperties: true
       properties:
         api_version:
+          maxLength: 5000
           type: string
         created:
           type: integer
@@ -2010,6 +2004,7 @@ components:
           additionalProperties: true
           type: object
         id:
+          maxLength: 5000
           type: string
         livemode:
           type: boolean
@@ -2023,6 +2018,7 @@ components:
           additionalProperties: true
           type: object
         type:
+          maxLength: 5000
           type: string
       required:
       - created
@@ -2032,6 +2028,8 @@ components:
       - object
       - pending_webhooks
       - type
+      - api_version
+      - request
       type: object
     EventList:
       additionalProperties: true
@@ -2047,6 +2045,8 @@ components:
           - list
           type: string
         url:
+          maxLength: 5000
+          pattern: ^/v1/events
           type: string
       required:
       - object
@@ -2100,7 +2100,6 @@ components:
           - send_invoice
           type: string
         currency:
-          pattern: ^[a-z]{3}$
           type: string
         customer:
           type: string
@@ -2114,7 +2113,7 @@ components:
           description: Merchant footer.
           type: string
         id:
-          pattern: ^in_
+          maxLength: 5000
           type: string
         lines:
           items:
@@ -2159,6 +2158,9 @@ components:
       - amount_due
       - amount_paid
       - lines
+      - description
+      - due_date
+      - number
       type: object
     InvoiceCreate:
       additionalProperties: false
@@ -2173,7 +2175,7 @@ components:
         currency:
           description: Three-letter ISO code, lowercase. Defaults to the pending items' currency, else
             usd. Must match every pending invoice item; otherwise a 400 currency_mismatch.
-          pattern: ^[a-z]{3}$
+          format: currency
           type: string
         customer:
           type: string
@@ -2203,6 +2205,7 @@ components:
         customer:
           type: string
         id:
+          maxLength: 5000
           type: string
         object:
           enum:
@@ -2223,7 +2226,7 @@ components:
         currency:
           description: Three-letter ISO code, lowercase, for an amount item. Defaults to usd; a price
             item takes the price's currency.
-          pattern: ^[a-z]{3}$
+          format: currency
           type: string
         customer:
           type: string
@@ -2239,7 +2242,6 @@ components:
           type: string
         quantity:
           description: Positive multiplier applied to amount or the price's unit amount. Defaults to 1.
-          minimum: 1
           type: integer
       required:
       - customer
@@ -2282,6 +2284,8 @@ components:
           - list
           type: string
         url:
+          maxLength: 5000
+          pattern: ^/v1/invoices
           type: string
       required:
       - object
@@ -2305,7 +2309,7 @@ components:
         and lines.
       properties:
         id:
-          pattern: ^in_
+          maxLength: 5000
           type: string
         object:
           enum:
@@ -2658,18 +2662,17 @@ components:
       - transfer_group
       type: object
     PaymentIntentBillingDetails:
-      additionalProperties: false
       description: 'Stripe''s `billing_details` of the new card (ADR 0111): accepted only with `type=card`
         on a US Stripe Connect store''s `confirm=true` create or merchant-key confirm of a PaymentIntent
         that holds no saved card; sent to Stripe on its PaymentMethod create, never on the PaymentIntent.
         Every other request with billing is refused `400` as before.'
       properties:
         address:
-          additionalProperties: false
           properties:
             city:
               type: string
             country:
+              maxLength: 5000
               type: string
             line1:
               type: string
@@ -2696,6 +2699,7 @@ components:
           - duplicate
           - fraudulent
           - requested_by_customer
+          maxLength: 5000
           type: string
       type: object
     PaymentIntentCapture:
@@ -2743,6 +2747,7 @@ components:
             enum:
             - card
             - pix
+            maxLength: 5000
             type: string
           type: array
         receipt_email:
@@ -2770,7 +2775,6 @@ components:
           description: Must be true when payment_method_data is supplied.
           type: boolean
         currency:
-          pattern: ^[a-z]{3}$
           type: string
         customer:
           type: string
@@ -2790,6 +2794,7 @@ components:
             enum:
             - card
             - pix
+            maxLength: 5000
             type: string
           type: array
         receipt_email:
@@ -2909,7 +2914,6 @@ components:
         amount:
           type: integer
         currency:
-          pattern: ^[a-z]{3}$
           type: string
         customer:
           type: string
@@ -3350,7 +3354,6 @@ components:
               additionalProperties: false
               properties:
                 limit:
-                  minimum: 1
                   type: integer
               type: object
           type: object
@@ -3372,13 +3375,12 @@ components:
         amount_total:
           type: integer
         currency:
-          pattern: ^[a-z]{3}$
           type: string
         description:
           nullable: true
           type: string
         id:
-          pattern: ^li_
+          maxLength: 5000
           type: string
         object:
           enum:
@@ -3387,12 +3389,13 @@ components:
         price:
           additionalProperties: true
           description: Present when the item was created from a stored catalog price (SC-D45).
+          nullable: true
           properties:
             currency:
-              pattern: ^[a-z]{3}$
+              format: currency
               type: string
             id:
-              pattern: ^price_
+              maxLength: 5000
               type: string
             object:
               enum:
@@ -3401,8 +3404,10 @@ components:
             type:
               enum:
               - one_time
+              - recurring
               type: string
             unit_amount:
+              nullable: true
               type: integer
           required:
           - id
@@ -3412,7 +3417,6 @@ components:
           - type
           type: object
         quantity:
-          minimum: 1
           type: integer
       required:
       - id
@@ -3420,6 +3424,8 @@ components:
       - amount_total
       - currency
       - quantity
+      - amount_subtotal
+      - description
       type: object
     PaymentLinkLineItemList:
       additionalProperties: true
@@ -3435,6 +3441,7 @@ components:
           - list
           type: string
         url:
+          maxLength: 5000
           type: string
       required:
       - object
@@ -3456,6 +3463,7 @@ components:
           - list
           type: string
         url:
+          maxLength: 5000
           type: string
       required:
       - object
@@ -3583,7 +3591,6 @@ components:
               additionalProperties: false
               properties:
                 limit:
-                  minimum: 1
                   type: integer
               type: object
           type: object
@@ -3669,7 +3676,6 @@ components:
         id:
           description: 'Fluveo narrowing: not in upstream pin; truthful public id-prefix constraint: pm_.'
           maxLength: 5000
-          pattern: ^pm_.+
           type: string
         ideal:
           $ref: '#/components/schemas/payment_method_ideal'
@@ -3831,8 +3837,6 @@ components:
         customer:
           description: The customer the card already belongs to.
           type: string
-      required:
-      - customer
       type: object
     PaymentMethodBillingAddress:
       additionalProperties: false
@@ -4000,7 +4004,6 @@ components:
           format: unix-time
           type: integer
         currency:
-          pattern: ^[a-z]{3}$
           type: string
         custom_unit_amount:
           anyOf:
@@ -4009,7 +4012,6 @@ components:
         id:
           description: 'Fluveo narrowing: not in upstream pin; truthful public id-prefix constraint'
           maxLength: 5000
-          pattern: ^price_
           type: string
         livemode:
           type: boolean
@@ -4045,6 +4047,9 @@ components:
               type: string
             interval_count:
               type: integer
+          required:
+          - interval
+          - interval_count
           type: object
         tax_behavior:
           enum:
@@ -4083,6 +4088,17 @@ components:
       - product
       - unit_amount
       - recurring
+      - billing_scheme
+      - custom_unit_amount
+      - livemode
+      - lookup_key
+      - metadata
+      - nickname
+      - tax_behavior
+      - tiers_mode
+      - transform_quantity
+      - type
+      - unit_amount_decimal
       type: object
     PriceCreate:
       additionalProperties: false
@@ -4090,7 +4106,6 @@ components:
         Sent as application/x-www-form-urlencoded.
       properties:
         currency:
-          pattern: ^[a-z]{3}$
           type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
@@ -4131,6 +4146,8 @@ components:
           - list
           type: string
         url:
+          maxLength: 5000
+          pattern: ^/v1/prices
           type: string
       required:
       - object
@@ -4178,7 +4195,6 @@ components:
         id:
           description: 'Fluveo narrowing: not in upstream pin; truthful public id-prefix constraint'
           maxLength: 5000
-          pattern: ^prod_
           type: string
         images:
           items:
@@ -4241,6 +4257,15 @@ components:
       - object
       - name
       - active
+      - description
+      - images
+      - livemode
+      - marketing_features
+      - metadata
+      - package_dimensions
+      - shippable
+      - type
+      - url
       type: object
     ProductCreate:
       additionalProperties: false
@@ -4269,6 +4294,8 @@ components:
           - list
           type: string
         url:
+          maxLength: 5000
+          pattern: ^/v1/products
           type: string
       required:
       - object
@@ -4369,7 +4396,6 @@ components:
         id:
           description: 'Fluveo narrowing: not in upstream pin; truthful public id-prefix constraint: re_.'
           maxLength: 5000
-          pattern: ^re_.+
           type: string
         instructions_email:
           maxLength: 5000
@@ -4453,16 +4479,14 @@ components:
         metadata:
           $ref: '#/components/schemas/Metadata'
         payment_intent:
-          pattern: ^pi_.+
           type: string
         reason:
           enum:
           - duplicate
           - fraudulent
           - requested_by_customer
+          maxLength: 5000
           type: string
-      required:
-      - payment_intent
       type: object
     RefundList:
       properties:
@@ -4497,13 +4521,14 @@ components:
       additionalProperties: false
       properties:
         client_secret:
+          maxLength: 5000
           nullable: true
-          pattern: ^seti_.+_secret_.+
           type: string
         created:
           format: unix-time
           type: integer
         customer:
+          maxLength: 5000
           nullable: true
           type: string
         description:
@@ -4511,7 +4536,7 @@ components:
           nullable: true
           type: string
         id:
-          pattern: ^seti_.+
+          maxLength: 5000
           type: string
         last_setup_error:
           anyOf:
@@ -4520,6 +4545,7 @@ components:
         livemode:
           type: boolean
         mandate:
+          maxLength: 5000
           nullable: true
           type: string
         metadata:
@@ -4536,10 +4562,12 @@ components:
           - setup_intent
           type: string
         payment_method:
+          maxLength: 5000
           nullable: true
           type: string
         payment_method_types:
           items:
+            maxLength: 5000
             type: string
           type: array
         status:
@@ -4555,6 +4583,7 @@ components:
           enum:
           - off_session
           - on_session
+          maxLength: 5000
           type: string
       required:
       - id
@@ -4581,6 +4610,7 @@ components:
           - duplicate
           - fraudulent
           - requested_by_customer
+          maxLength: 5000
           type: string
       type: object
     SetupIntentConfirm:
@@ -4632,7 +4662,6 @@ components:
         payment_method:
           description: Owned saved PaymentMethod; requires `customer` and `confirm=true`; create only.
             The succeeded SetupIntent returns the same `pm_*` in `payment_method`.
-          pattern: ^pm_.+
           type: string
         payment_method_data:
           $ref: '#/components/schemas/SetupIntentPaymentMethodData'
@@ -4654,17 +4683,20 @@ components:
       additionalProperties: false
       properties:
         charge:
+          maxLength: 5000
           nullable: true
           type: string
         code:
           nullable: true
           type: string
         decline_code:
+          maxLength: 5000
           nullable: true
           type: string
         message:
           type: string
         param:
+          maxLength: 5000
           nullable: true
           type: string
         payment_method:
@@ -4715,6 +4747,7 @@ components:
           format: unix-time
           type: integer
         id:
+          maxLength: 5000
           type: string
         livemode:
           type: boolean
@@ -4829,7 +4862,7 @@ components:
         customer:
           type: string
         id:
-          pattern: ^sub_
+          maxLength: 5000
           type: string
         items:
           additionalProperties: true
@@ -4843,6 +4876,7 @@ components:
               - list
               type: string
             url:
+              maxLength: 5000
               type: string
           required:
           - object
@@ -4850,6 +4884,7 @@ components:
           - url
           type: object
         latest_invoice:
+          maxLength: 5000
           type: string
         object:
           enum:
@@ -4877,6 +4912,10 @@ components:
       - current_period_end
       - cancel_at_period_end
       - items
+      - cancel_at
+      - canceled_at
+      - latest_invoice
+      - trial_end
       type: object
     SubscriptionCreate:
       additionalProperties: false
@@ -4934,6 +4973,7 @@ components:
       additionalProperties: true
       properties:
         id:
+          maxLength: 5000
           type: string
         object:
           enum:
@@ -4966,6 +5006,8 @@ components:
           - list
           type: string
         url:
+          maxLength: 5000
+          pattern: ^/v1/subscriptions
           type: string
       required:
       - object
@@ -5158,6 +5200,8 @@ components:
           - list
           type: string
         url:
+          maxLength: 5000
+          pattern: ^/v1/webhook_endpoints
           type: string
       required:
       - object
@@ -5315,14 +5359,17 @@ components:
           type: integer
         enabled_events:
           items:
+            maxLength: 5000
             type: string
           type: array
         id:
+          maxLength: 5000
           type: string
         livemode:
           type: boolean
         metadata:
           additionalProperties:
+            maxLength: 500
             type: string
           type: object
         object:
@@ -5333,8 +5380,10 @@ components:
           enum:
           - enabled
           - disabled
+          maxLength: 5000
           type: string
         url:
+          maxLength: 5000
           type: string
       required:
       - id
@@ -5344,6 +5393,7 @@ components:
       - enabled_events
       - created
       - livemode
+      - metadata
       type: object
     account:
       type: object
@@ -5628,6 +5678,7 @@ components:
           enum:
           - card
           - pix
+          maxLength: 5000
           type: string
       type: object
     payment_method_eps:
@@ -6118,6 +6169,28 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              branding_settings:
+                explode: true
+                style: deepObject
+              customer_update:
+                explode: true
+                style: deepObject
+              line_items:
+                explode: true
+                style: deepObject
+              metadata:
+                explode: true
+                style: deepObject
+              payment_intent_data:
+                explode: true
+                style: deepObject
+              payment_method_types:
+                explode: true
+                style: deepObject
+              tax_id_collection:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/CheckoutSessionCreate'
         required: true
@@ -6178,6 +6251,10 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/CheckoutSessionUpdate'
         required: false
@@ -6238,19 +6315,16 @@ paths:
       - in: query
         name: limit
         schema:
-          default: 10
-          maximum: 100
-          minimum: 1
           type: integer
       - in: query
         name: starting_after
         schema:
-          pattern: ^li_
+          maxLength: 5000
           type: string
       - in: query
         name: ending_before
         schema:
-          pattern: ^li_
+          maxLength: 5000
           type: string
       responses:
         '200':
@@ -6320,6 +6394,13 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              address:
+                explode: true
+                style: deepObject
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/CustomerCreate'
         required: false
@@ -6402,6 +6483,16 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              address:
+                explode: true
+                style: deepObject
+              invoice_settings:
+                explode: true
+                style: deepObject
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/CustomerUpdate'
         required: false
@@ -6462,10 +6553,12 @@ paths:
       - in: query
         name: starting_after
         schema:
+          maxLength: 5000
           type: string
       - in: query
         name: ending_before
         schema:
+          maxLength: 5000
           type: string
       - in: query
         name: type
@@ -6483,6 +6576,24 @@ paths:
         schema:
           pattern: ^pi_.+
           type: string
+      - explode: true
+        in: query
+        name: created
+        required: false
+        schema:
+          anyOf:
+          - properties:
+              gt:
+                type: integer
+              gte:
+                type: integer
+              lt:
+                type: integer
+              lte:
+                type: integer
+            type: object
+          - type: integer
+        style: deepObject
       responses:
         '200':
           content:
@@ -6543,6 +6654,10 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/InvoiceItemCreate'
         required: true
@@ -6600,6 +6715,10 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/InvoiceCreate'
         required: true
@@ -6747,7 +6866,13 @@ paths:
         content:
           application/x-www-form-urlencoded:
             encoding:
+              metadata:
+                explode: true
+                style: deepObject
               payment_method_data:
+                explode: true
+                style: deepObject
+              payment_method_types:
                 explode: true
                 style: deepObject
             schema:
@@ -6806,6 +6931,13 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              metadata:
+                explode: true
+                style: deepObject
+              receipt_email:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/PaymentIntentUpdate'
         required: false
@@ -6906,6 +7038,12 @@ paths:
               payment_method_data:
                 explode: true
                 style: deepObject
+              payment_method_types:
+                explode: true
+                style: deepObject
+              receipt_email:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/PaymentIntentConfirm'
         required: false
@@ -6985,6 +7123,22 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              after_completion:
+                explode: true
+                style: deepObject
+              line_items:
+                explode: true
+                style: deepObject
+              metadata:
+                explode: true
+                style: deepObject
+              payment_method_types:
+                explode: true
+                style: deepObject
+              restrictions:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/PaymentLinkCreate'
         required: true
@@ -7046,6 +7200,19 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              after_completion:
+                explode: true
+                style: deepObject
+              inactive_message:
+                explode: true
+                style: deepObject
+              metadata:
+                explode: true
+                style: deepObject
+              restrictions:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/PaymentLinkUpdate'
         required: false
@@ -7290,6 +7457,13 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              metadata:
+                explode: true
+                style: deepObject
+              recurring:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/PriceCreate'
         required: true
@@ -7349,6 +7523,10 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/PriceUpdate'
         required: true
@@ -7406,6 +7584,10 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/ProductCreate'
         required: true
@@ -7491,6 +7673,13 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              description:
+                explode: true
+                style: deepObject
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/ProductUpdate'
         required: true
@@ -7587,6 +7776,10 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/RefundCreate'
         required: true
@@ -7643,6 +7836,10 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/RefundUpdate'
         required: false
@@ -7707,6 +7904,13 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              metadata:
+                explode: true
+                style: deepObject
+              payment_method_data:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/SetupIntentCreate'
         required: false
@@ -7764,6 +7968,13 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              metadata:
+                explode: true
+                style: deepObject
+              payment_method_data:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/SetupIntentUpdate'
         required: false
@@ -7828,6 +8039,10 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              payment_method_data:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/SetupIntentConfirm'
         required: false
@@ -7885,6 +8100,16 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              cancel_at:
+                explode: true
+                style: deepObject
+              items:
+                explode: true
+                style: deepObject
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/SubscriptionCreate'
         required: true
@@ -7989,6 +8214,16 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              description:
+                explode: true
+                style: deepObject
+              enabled_events:
+                explode: true
+                style: deepObject
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/WebhookEndpointCreate'
         required: true
@@ -8084,6 +8319,16 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              description:
+                explode: true
+                style: deepObject
+              enabled_events:
+                explode: true
+                style: deepObject
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/WebhookEndpointUpdate'
         required: true

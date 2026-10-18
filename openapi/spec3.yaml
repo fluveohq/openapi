@@ -819,7 +819,6 @@ components:
           $ref: '#/components/schemas/CheckoutBrandingAsset'
       type: object
     CheckoutCustomerUpdate:
-      additionalProperties: false
       properties:
         name:
           enum:
@@ -1277,6 +1276,7 @@ components:
           $ref: '#/components/schemas/CheckoutCustomerUpdate'
         expires_at:
           description: Unix timestamp between 30 minutes and 24 hours from now; defaults to 24 hours.
+          format: unix-time
           type: integer
         line_items:
           description: Single currency; every item individually positive; at most 100 items; quantity
@@ -1286,14 +1286,19 @@ components:
               price_data:
                 properties:
                   currency:
+                    format: currency
                     type: string
                   product_data:
                     properties:
                       name:
                         type: string
+                    required:
+                    - name
                     type: object
                   unit_amount:
                     type: integer
+                required:
+                - currency
                 type: object
               quantity:
                 type: integer
@@ -1307,7 +1312,6 @@ components:
           - payment
           type: string
         payment_intent_data:
-          additionalProperties: false
           properties:
             capture_method:
               enum:
@@ -1346,23 +1350,20 @@ components:
           type: string
       type: object
     CheckoutSessionLineItem:
-      additionalProperties: false
       properties:
         amount_discount:
-          enum:
-          - 0
           type: integer
         amount_subtotal:
           type: integer
         amount_tax:
-          enum:
-          - 0
           type: integer
         amount_total:
           type: integer
         currency:
+          format: currency
           type: string
         description:
+          nullable: true
           type: string
         id:
           maxLength: 5000
@@ -1372,9 +1373,10 @@ components:
           - item
           type: string
         price:
-          additionalProperties: false
+          nullable: true
           properties:
             currency:
+              format: currency
               type: string
             id:
               maxLength: 5000
@@ -1384,7 +1386,6 @@ components:
               - price
               type: string
             product:
-              additionalProperties: false
               properties:
                 id:
                   maxLength: 5000
@@ -1401,6 +1402,7 @@ components:
               - name
               type: object
             unit_amount:
+              nullable: true
               type: integer
           required:
           - id
@@ -1410,6 +1412,7 @@ components:
           - product
           type: object
         quantity:
+          nullable: true
           type: integer
       required:
       - id
@@ -1424,7 +1427,6 @@ components:
       - quantity
       type: object
     CheckoutSessionLineItemList:
-      additionalProperties: false
       properties:
         data:
           items:
@@ -1502,7 +1504,6 @@ components:
           $ref: '#/components/schemas/CheckoutSessionShippingDetails'
       type: object
     CheckoutTaxIdCollection:
-      additionalProperties: false
       properties:
         enabled:
           type: boolean
@@ -1775,7 +1776,6 @@ components:
           type: string
       type: object
     DeletedCustomer:
-      additionalProperties: false
       properties:
         deleted:
           enum:
@@ -1794,7 +1794,6 @@ components:
       - object
       type: object
     DeletedProduct:
-      additionalProperties: false
       properties:
         deleted:
           enum:
@@ -1997,11 +1996,18 @@ components:
       properties:
         api_version:
           maxLength: 5000
+          nullable: true
           type: string
         created:
+          format: unix-time
           type: integer
         data:
           additionalProperties: true
+          properties:
+            object:
+              type: object
+          required:
+          - object
           type: object
         id:
           maxLength: 5000
@@ -2016,6 +2022,19 @@ components:
           type: integer
         request:
           additionalProperties: true
+          nullable: true
+          properties:
+            id:
+              maxLength: 5000
+              nullable: true
+              type: string
+            idempotency_key:
+              maxLength: 5000
+              nullable: true
+              type: string
+          required:
+          - id
+          - idempotency_key
           type: object
         type:
           maxLength: 5000
@@ -2094,20 +2113,29 @@ components:
         amount_paid:
           description: Smallest currency unit (minor units / cents).
           type: integer
+        amount_remaining:
+          type: integer
+        attempt_count:
+          type: integer
         collection_method:
           enum:
           - charge_automatically
           - send_invoice
           type: string
         currency:
+          format: currency
           type: string
         customer:
+          nullable: true
           type: string
         description:
           description: Merchant memo.
+          nullable: true
           type: string
         due_date:
           description: Unix timestamp (seconds); present only on send_invoice invoices that set one.
+          format: unix-time
+          nullable: true
           type: integer
         footer:
           description: Merchant footer.
@@ -2122,6 +2150,7 @@ components:
         number:
           description: Sequential merchant-scoped number (FLV-0001), assigned once at finalization; absent
             on drafts.
+          nullable: true
           type: string
         object:
           enum:
@@ -2141,14 +2170,17 @@ components:
           - paid
           - void
           - uncollectible
+          nullable: true
           type: string
         subscription:
+          nullable: true
           type: string
+        subtotal:
+          type: integer
         total:
           description: Smallest currency unit (minor units / cents).
           type: integer
       required:
-      - id
       - object
       - customer
       - status
@@ -2161,6 +2193,10 @@ components:
       - description
       - due_date
       - number
+      - amount_remaining
+      - attempt_count
+      - subtotal
+      - post_payment_credit_notes_amount
       type: object
     InvoiceCreate:
       additionalProperties: false
@@ -2188,6 +2224,7 @@ components:
         due_date:
           description: Unix timestamp (seconds). Only valid with collection_method=send_invoice; otherwise
             a 400 invalid_due_date.
+          format: unix-time
           type: integer
         footer:
           description: Merchant footer shown on the invoice. Same free-text PAN scan as description.
@@ -2308,8 +2345,36 @@ components:
         invoice_json shape). Retrieve the invoice for the full object with customer, collection_method,
         and lines.
       properties:
+        amount_due:
+          type: integer
+        amount_paid:
+          type: integer
+        amount_remaining:
+          type: integer
+        attempt_count:
+          type: integer
+        collection_method:
+          enum:
+          - charge_automatically
+          - send_invoice
+          type: string
+        currency:
+          format: currency
+          type: string
+        description:
+          maxLength: 5000
+          nullable: true
+          type: string
+        due_date:
+          format: unix-time
+          nullable: true
+          type: integer
         id:
           maxLength: 5000
+          type: string
+        number:
+          maxLength: 5000
+          nullable: true
           type: string
         object:
           enum:
@@ -2317,6 +2382,8 @@ components:
           type: string
         payment_intent:
           type: string
+        post_payment_credit_notes_amount:
+          type: integer
         status:
           enum:
           - draft
@@ -2324,15 +2391,28 @@ components:
           - paid
           - void
           - uncollectible
+          nullable: true
           type: string
+        subtotal:
+          type: integer
         total:
           description: Smallest currency unit (minor units / cents).
           type: integer
       required:
-      - id
       - object
       - status
       - total
+      - amount_due
+      - amount_paid
+      - amount_remaining
+      - attempt_count
+      - collection_method
+      - currency
+      - description
+      - due_date
+      - number
+      - post_payment_credit_notes_amount
+      - subtotal
       type: object
     Metadata:
       additionalProperties:
@@ -2775,6 +2855,7 @@ components:
           description: Must be true when payment_method_data is supplied.
           type: boolean
         currency:
+          format: currency
           type: string
         customer:
           type: string
@@ -2914,6 +2995,7 @@ components:
         amount:
           type: integer
         currency:
+          format: currency
           type: string
         customer:
           type: string
@@ -3259,6 +3341,7 @@ components:
           description: Smallest currency unit (minor units / cents).
           type: integer
         currency:
+          format: currency
           pattern: ^[a-z]{3}$
           type: string
         description:
@@ -3346,12 +3429,10 @@ components:
             type: string
           type: array
         restrictions:
-          additionalProperties: false
           description: Stripe reuse limit (spec 22745 P1). completed_sessions.limit caps how many completed
             sales the link accepts; the link auto-deactivates at the limit.
           properties:
             completed_sessions:
-              additionalProperties: false
               properties:
                 limit:
                   type: integer
@@ -3375,6 +3456,7 @@ components:
         amount_total:
           type: integer
         currency:
+          format: currency
           type: string
         description:
           nullable: true
@@ -3417,6 +3499,7 @@ components:
           - type
           type: object
         quantity:
+          nullable: true
           type: integer
       required:
       - id
@@ -3494,7 +3577,6 @@ components:
             or expired links return 400 without mutation.
           type: boolean
         after_completion:
-          additionalProperties: false
           description: 'Discriminated completion behavior: redirect requires redirect.url; hosted_confirmation
             requires hosted_confirmation.custom_message (spec 22745 P3).'
           oneOf:
@@ -3583,12 +3665,10 @@ components:
         metadata:
           $ref: '#/components/schemas/PaymentLinkMetadata'
         restrictions:
-          additionalProperties: false
           description: Stripe reuse limit (spec 22745 P1). completed_sessions.limit caps how many completed
             sales the link accepts; the link auto-deactivates at the limit.
           properties:
             completed_sessions:
-              additionalProperties: false
               properties:
                 limit:
                   type: integer
@@ -4004,6 +4084,7 @@ components:
           format: unix-time
           type: integer
         currency:
+          format: currency
           type: string
         custom_unit_amount:
           anyOf:
@@ -4036,7 +4117,7 @@ components:
           maxLength: 5000
           type: string
         recurring:
-          additionalProperties: false
+          nullable: true
           properties:
             interval:
               enum:
@@ -4047,9 +4128,24 @@ components:
               type: string
             interval_count:
               type: integer
+            meter:
+              maxLength: 5000
+              nullable: true
+              type: string
+            trial_period_days:
+              nullable: true
+              type: integer
+            usage_type:
+              enum:
+              - licensed
+              - metered
+              type: string
           required:
           - interval
           - interval_count
+          - meter
+          - trial_period_days
+          - usage_type
           type: object
         tax_behavior:
           enum:
@@ -4075,6 +4171,7 @@ components:
           type: string
         unit_amount:
           description: Per-unit price in the smallest currency unit.
+          nullable: true
           type: integer
         unit_amount_decimal:
           format: decimal
@@ -4106,6 +4203,7 @@ components:
         Sent as application/x-www-form-urlencoded.
       properties:
         currency:
+          format: currency
           type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
@@ -4191,6 +4289,7 @@ components:
           nullable: true
           type: string
         description:
+          nullable: true
           type: string
         id:
           description: 'Fluveo narrowing: not in upstream pin; truthful public id-prefix constraint'
@@ -4580,9 +4679,6 @@ components:
           - succeeded
           type: string
         usage:
-          enum:
-          - off_session
-          - on_session
           maxLength: 5000
           type: string
       required:
@@ -4736,10 +4832,8 @@ components:
       - url
       type: object
     SetupIntentPaymentMethod:
-      additionalProperties: false
       properties:
         card:
-          additionalProperties: false
           nullable: true
           properties: {}
           type: object
@@ -4756,17 +4850,73 @@ components:
           - payment_method
           type: string
         type:
+          enum:
+          - acss_debit
+          - affirm
+          - afterpay_clearpay
+          - alipay
+          - alma
+          - amazon_pay
+          - au_becs_debit
+          - bacs_debit
+          - bancontact
+          - billie
+          - bizum
+          - blik
+          - boleto
+          - card
+          - card_present
+          - cashapp
+          - crypto
+          - custom
+          - customer_balance
+          - eps
+          - fpx
+          - giropay
+          - grabpay
+          - ideal
+          - interac_present
+          - kakao_pay
+          - klarna
+          - konbini
+          - kr_card
+          - link
+          - mb_way
+          - mobilepay
+          - multibanco
+          - naver_pay
+          - nz_bank_account
+          - oxxo
+          - p24
+          - pay_by_bank
+          - payco
+          - paynow
+          - paypal
+          - payto
+          - pix
+          - promptpay
+          - revolut_pay
+          - samsung_pay
+          - satispay
+          - scalapay
+          - sepa_debit
+          - sofort
+          - sunbit
+          - swish
+          - twint
+          - upi
+          - us_bank_account
+          - wechat_pay
+          - zip
           type: string
       required:
       - id
       - object
-      - card
       - created
       - type
       - livemode
       type: object
     SetupIntentPaymentMethodData:
-      additionalProperties: false
       properties:
         billing_details:
           type: object
@@ -4850,10 +5000,14 @@ components:
       properties:
         cancel_at:
           description: Unix timestamp (seconds); the contracted end recorded at create.
+          format: unix-time
+          nullable: true
           type: integer
         cancel_at_period_end:
           type: boolean
         canceled_at:
+          format: unix-time
+          nullable: true
           type: integer
         current_period_end:
           type: integer
@@ -4885,6 +5039,7 @@ components:
           type: object
         latest_invoice:
           maxLength: 5000
+          nullable: true
           type: string
         object:
           enum:
@@ -4892,16 +5047,19 @@ components:
           type: string
         status:
           enum:
+          - active
+          - canceled
           - incomplete
           - incomplete_expired
-          - trialing
-          - active
           - past_due
+          - paused
+          - trialing
           - unpaid
-          - canceled
           type: string
         trial_end:
           description: Unix timestamp (seconds); set when the subscription started with a trial.
+          format: unix-time
+          nullable: true
           type: integer
       required:
       - id
@@ -4926,6 +5084,7 @@ components:
         cancel_at:
           description: Unix timestamp (seconds), strictly after the effective start; recorded as the contracted
             end (renewal enforcement lands with automatic collection).
+          format: unix-time
           type: integer
         collection_method:
           enum:
@@ -4990,7 +5149,6 @@ components:
       - id
       - object
       - price
-      - quantity
       type: object
     SubscriptionList:
       additionalProperties: true
@@ -5104,7 +5262,6 @@ components:
             type: string
           type: object
         url:
-          format: uri
           type: string
       required:
       - url
@@ -5346,7 +5503,6 @@ components:
             type: string
           type: object
         url:
-          format: uri
           type: string
       type: object
     WebhookEndpointUpdateResponse:
@@ -5356,6 +5512,7 @@ components:
         - secret
       properties:
         created:
+          format: unix-time
           type: integer
         enabled_events:
           items:
@@ -5377,9 +5534,6 @@ components:
           - webhook_endpoint
           type: string
         status:
-          enum:
-          - enabled
-          - disabled
           maxLength: 5000
           type: string
         url:
@@ -5664,22 +5818,132 @@ components:
       properties:
         card:
           description: Safe card summary; see ChargeCardPaymentMethodDetails for the nullable sub-fields.
+          properties:
+            amount_authorized:
+              nullable: true
+              type: integer
+            authorization_code:
+              maxLength: 5000
+              nullable: true
+              type: string
+            brand:
+              maxLength: 5000
+              nullable: true
+              type: string
+            checks:
+              anyOf:
+              - $ref: '#/components/schemas/payment_method_details_card_checks'
+              nullable: true
+            country:
+              maxLength: 5000
+              nullable: true
+              type: string
+            funding:
+              maxLength: 5000
+              nullable: true
+              type: string
+            installments:
+              anyOf:
+              - $ref: '#/components/schemas/payment_method_details_card_installments'
+              nullable: true
+            last4:
+              maxLength: 5000
+              nullable: true
+              type: string
+            mandate:
+              maxLength: 5000
+              nullable: true
+              type: string
+            network:
+              maxLength: 5000
+              nullable: true
+              type: string
+            network_transaction_id:
+              maxLength: 5000
+              nullable: true
+              type: string
+            regulated_status:
+              enum:
+              - regulated
+              - unregulated
+              nullable: true
+              type: string
+            three_d_secure:
+              anyOf:
+              - $ref: '#/components/schemas/three_d_secure_details_charge'
+              nullable: true
           required:
           - brand
           - exp_month
           - exp_year
           - last4
+          - amount_authorized
+          - authorization_code
+          - checks
+          - country
+          - funding
+          - installments
+          - mandate
+          - network
+          - network_transaction_id
+          - regulated_status
+          - three_d_secure
           type: object
         pix:
-          additionalProperties: false
           properties: {}
           type: object
         type:
-          enum:
-          - card
-          - pix
           maxLength: 5000
           type: string
+      type: object
+    payment_method_details_card_checks:
+      properties:
+        address_line1_check:
+          maxLength: 5000
+          nullable: true
+          type: string
+        address_postal_code_check:
+          maxLength: 5000
+          nullable: true
+          type: string
+        cvc_check:
+          maxLength: 5000
+          nullable: true
+          type: string
+      required:
+      - address_line1_check
+      - address_postal_code_check
+      - cvc_check
+      type: object
+    payment_method_details_card_installments:
+      properties:
+        plan:
+          anyOf:
+          - $ref: '#/components/schemas/payment_method_details_card_installments_plan'
+          nullable: true
+      required:
+      - plan
+      type: object
+    payment_method_details_card_installments_plan:
+      properties:
+        count:
+          nullable: true
+          type: integer
+        interval:
+          enum:
+          - month
+          nullable: true
+          type: string
+        type:
+          enum:
+          - bonus
+          - fixed_count
+          - revolving
+          type: string
+      required:
+      - count
+      - interval
+      - type
       type: object
     payment_method_eps:
       type: object
@@ -5762,6 +6026,24 @@ components:
     payment_pages_checkout_session_after_expiration:
       type: object
     payment_pages_checkout_session_automatic_tax:
+      properties:
+        enabled:
+          type: boolean
+        provider:
+          maxLength: 5000
+          nullable: true
+          type: string
+        status:
+          enum:
+          - complete
+          - failed
+          - requires_location_inputs
+          nullable: true
+          type: string
+      required:
+      - enabled
+      - provider
+      - status
       type: object
     payment_pages_checkout_session_branding_settings:
       type: object
@@ -5776,6 +6058,36 @@ components:
     payment_pages_checkout_session_custom_fields:
       type: object
     payment_pages_checkout_session_custom_text:
+      properties:
+        after_submit:
+          anyOf:
+          - $ref: '#/components/schemas/payment_pages_checkout_session_custom_text_position'
+          nullable: true
+        shipping_address:
+          anyOf:
+          - $ref: '#/components/schemas/payment_pages_checkout_session_custom_text_position'
+          nullable: true
+        submit:
+          anyOf:
+          - $ref: '#/components/schemas/payment_pages_checkout_session_custom_text_position'
+          nullable: true
+        terms_of_service_acceptance:
+          anyOf:
+          - $ref: '#/components/schemas/payment_pages_checkout_session_custom_text_position'
+          nullable: true
+      required:
+      - after_submit
+      - shipping_address
+      - submit
+      - terms_of_service_acceptance
+      type: object
+    payment_pages_checkout_session_custom_text_position:
+      properties:
+        message:
+          maxLength: 1200
+          type: string
+      required:
+      - message
       type: object
     payment_pages_checkout_session_customer_details:
       type: object
@@ -5851,6 +6163,74 @@ components:
     tax_id:
       type: object
     test_helpers.test_clock:
+      type: object
+    three_d_secure_details_charge:
+      properties:
+        authentication_flow:
+          enum:
+          - challenge
+          - frictionless
+          nullable: true
+          type: string
+        electronic_commerce_indicator:
+          enum:
+          - '01'
+          - '02'
+          - '05'
+          - '06'
+          - '07'
+          nullable: true
+          type: string
+        exemption_indicator:
+          enum:
+          - low_risk
+          - none
+          nullable: true
+          type: string
+        exemption_indicator_applied:
+          type: boolean
+        result:
+          enum:
+          - attempt_acknowledged
+          - authenticated
+          - exempted
+          - failed
+          - not_supported
+          - processing_error
+          nullable: true
+          type: string
+        result_reason:
+          enum:
+          - abandoned
+          - bypassed
+          - canceled
+          - card_not_enrolled
+          - network_not_supported
+          - protocol_error
+          - rejected
+          nullable: true
+          type: string
+        transaction_id:
+          maxLength: 5000
+          nullable: true
+          type: string
+        version:
+          enum:
+          - 1.0.2
+          - 2.1.0
+          - 2.2.0
+          - 2.3.0
+          - 2.3.1
+          nullable: true
+          type: string
+      required:
+      - authentication_flow
+      - electronic_commerce_indicator
+      - exemption_indicator
+      - result
+      - result_reason
+      - transaction_id
+      - version
       type: object
     three_d_secure_usage:
       type: object

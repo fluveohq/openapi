@@ -1,18 +1,5 @@
 components:
   parameters:
-    balanceTransactionExpand:
-      description: Stripe-style expansion fields consumed by the expansion engine. The launch mounted
-        contract supports expanding data.source on list responses.
-      explode: true
-      in: query
-      name: expand[]
-      schema:
-        items:
-          enum:
-          - data.source
-          type: string
-        type: array
-      style: form
     balanceTransactionPath:
       in: path
       name: id
@@ -40,26 +27,6 @@ components:
     created:
       in: query
       name: created
-      schema:
-        type: integer
-    created_gt:
-      in: query
-      name: created[gt]
-      schema:
-        type: integer
-    created_gte:
-      in: query
-      name: created[gte]
-      schema:
-        type: integer
-    created_lt:
-      in: query
-      name: created[lt]
-      schema:
-        type: integer
-    created_lte:
-      in: query
-      name: created[lte]
       schema:
         type: integer
     customer:
@@ -752,35 +719,6 @@ components:
       - card
       - type
       type: object
-    CheckoutBranding:
-      additionalProperties: true
-      properties:
-        background_color:
-          type: string
-        border_style:
-          type: string
-        button_color:
-          type: string
-        display_name:
-          type: string
-        font_family:
-          type: string
-        icon:
-          $ref: '#/components/schemas/CheckoutBrandingAsset'
-        logo:
-          $ref: '#/components/schemas/CheckoutBrandingAsset'
-        object:
-          enum:
-          - checkout.branding
-          type: string
-      required:
-      - object
-      - display_name
-      - background_color
-      - button_color
-      - font_family
-      - border_style
-      type: object
     CheckoutBrandingAsset:
       additionalProperties: false
       properties:
@@ -805,7 +743,6 @@ components:
           enum:
           - rounded
           - pill
-          - square
           type: string
         button_color:
           type: string
@@ -1346,7 +1283,7 @@ components:
           $ref: '#/components/schemas/CheckoutTaxIdCollection'
         ui_mode:
           enum:
-          - hosted
+          - hosted_page
           type: string
       type: object
     CheckoutSessionLineItem:
@@ -1549,39 +1486,11 @@ components:
       - object
       - url
       type: object
-    CheckoutSessionShippingAddress:
-      additionalProperties: false
-      properties:
-        city:
-          type: string
-        country:
-          type: string
-        line1:
-          type: string
-        line2:
-          type: string
-        postal_code:
-          type: string
-        state:
-          type: string
-      type: object
-    CheckoutSessionShippingDetails:
-      additionalProperties: false
-      properties:
-        address:
-          $ref: '#/components/schemas/CheckoutSessionShippingAddress'
-        name:
-          type: string
-      type: object
     CheckoutSessionUpdate:
       additionalProperties: false
       properties:
-        customer_email:
-          type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
-        shipping_details:
-          $ref: '#/components/schemas/CheckoutSessionShippingDetails'
       type: object
     CheckoutTaxIdCollection:
       properties:
@@ -2171,19 +2080,6 @@ components:
       - file
       - purpose
       type: object
-    HostedInvoiceUrl:
-      additionalProperties: true
-      properties:
-        hosted_invoice_url:
-          description: Opaque, signed, tamper-evident hosted page path /i/{token}, site-relative to the
-            API origin. Carries no client_secret or key material.
-          type: string
-        invoice:
-          type: string
-      required:
-      - invoice
-      - hosted_invoice_url
-      type: object
     Invoice:
       additionalProperties: true
       properties:
@@ -2386,8 +2282,6 @@ components:
           anyOf:
           - $ref: '#/components/schemas/billing_bill_resource_invoicing_parents_invoice_parent'
           nullable: true
-        payment_intent:
-          type: string
         payment_settings:
           $ref: '#/components/schemas/invoices_payment_settings'
         post_payment_credit_notes_amount:
@@ -2556,8 +2450,6 @@ components:
         footer:
           description: Merchant footer shown on the invoice. Same free-text PAN scan as description.
           type: string
-        mandate:
-          type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
       required:
@@ -2653,8 +2545,6 @@ components:
           type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
-        price:
-          type: string
         quantity:
           description: Positive multiplier applied to amount or the price's unit amount. Defaults to 1.
           type: integer
@@ -2894,8 +2784,6 @@ components:
           anyOf:
           - $ref: '#/components/schemas/billing_bill_resource_invoicing_parents_invoice_parent'
           nullable: true
-        payment_intent:
-          type: string
         payment_settings:
           $ref: '#/components/schemas/invoices_payment_settings'
         post_payment_credit_notes_amount:
@@ -3401,31 +3289,6 @@ components:
         statement_descriptor_suffix:
           type: string
       type: object
-    PaymentIntentCardData:
-      additionalProperties: false
-      properties:
-        cvc:
-          pattern: ^[0-9]{3,4}$
-          type: string
-          writeOnly: true
-        exp_month:
-          pattern: ^(0?[1-9]|1[0-2])$
-          type: string
-          writeOnly: true
-        exp_year:
-          pattern: ^[0-9]{2,4}$
-          type: string
-          writeOnly: true
-        number:
-          pattern: ^[0-9]{12,19}$
-          type: string
-          writeOnly: true
-      required:
-      - number
-      - exp_month
-      - exp_year
-      - cvc
-      type: object
     PaymentIntentConfirm:
       additionalProperties: false
       properties:
@@ -3477,8 +3340,8 @@ components:
         payment_method_data:
           allOf:
           - $ref: '#/components/schemas/PaymentIntentPaymentMethodData'
-          description: Inline card data is accepted on create only when confirm=true. Test-mode cards
-            only until the production tokenization boundary is promoted.
+          description: Only `type=pix` is public; inline card data is hidden from public /v1 (ADR 0004,
+            amendment G5/C14).
         payment_method_types:
           description: 'Payment method vocabulary honored at launch: `card` (default) or `pix` (BRL, automatic
             capture).'
@@ -3567,16 +3430,13 @@ components:
       type: object
     PaymentIntentPaymentMethodData:
       additionalProperties: false
-      description: '`type=card` carries inline test-mode card data; `type=pix` carries no data (the Pix
-        instruction is issued server-side and read back through `next_action`).'
+      description: '`type=pix` carries no data (the Pix instruction is issued server-side and read back
+        through `next_action`).'
       properties:
         billing_details:
           $ref: '#/components/schemas/PaymentIntentBillingDetails'
-        card:
-          $ref: '#/components/schemas/PaymentIntentCardData'
         type:
           enum:
-          - card
           - pix
           type: string
       required:
@@ -3660,8 +3520,6 @@ components:
           type: object
         allow_promotion_codes:
           type: boolean
-        amount:
-          type: integer
         application:
           maxLength: 5000
           nullable: true
@@ -3683,8 +3541,6 @@ components:
           anyOf:
           - $ref: '#/components/schemas/StripePinned_payment_links_resource_consent_collection'
           nullable: true
-        created:
-          type: integer
         currency:
           pattern: ^[a-z]{3}$
           type: string
@@ -3699,12 +3555,6 @@ components:
           - always
           - if_required
           type: string
-        description:
-          maxLength: 1000
-          nullable: true
-          type: string
-        expires_at:
-          type: integer
         id:
           pattern: ^plink_
           type: string
@@ -3809,19 +3659,16 @@ components:
       - active
       - after_completion
       - allow_promotion_codes
-      - amount
       - application
       - application_fee_amount
       - application_fee_percent
       - automatic_tax
       - billing_address_collection
       - consent_collection
-      - created
       - currency
       - custom_fields
       - custom_text
       - customer_creation
-      - expires_at
       - id
       - invoice_creation
       - livemode
@@ -3842,96 +3689,9 @@ components:
       type: object
     PaymentLinkCreate:
       additionalProperties: false
-      description: 'Create with exactly one money shape: flat amount+currency (Fluveo extension) or 1..20
-        line_items, each with inline price_data or a stored price id (SC-D45: the router resolves the
-        price from the merchant catalog; its unit_amount and currency are the only money source). expires_at
-        is a Fluveo extension. Sent as application/x-www-form-urlencoded; the create honors Idempotency-Key.'
-      oneOf:
-      - description: Flat amount/currency shape. Mutually exclusive with line_items.
-        not:
-          required:
-          - line_items
-          type: object
-        properties:
-          amount:
-            description: Smallest currency unit (minor units / cents).
-            type: integer
-          currency:
-            pattern: ^[a-z]{3}$
-            type: string
-        required:
-        - amount
-        - currency
-        type: object
-      - allOf:
-        - not:
-            required:
-            - amount
-            type: object
-        - not:
-            required:
-            - currency
-            type: object
-        description: Line-item shape. Mutually exclusive with flat amount/currency.
-        properties:
-          line_items:
-            items:
-              additionalProperties: false
-              description: 'Exactly one of price (a stored catalog price id) or price_data (inline): an
-                item with both, or with neither, is refused.'
-              not:
-                anyOf:
-                - required:
-                  - price
-                  - price_data
-                  type: object
-                - not:
-                    anyOf:
-                    - required:
-                      - price
-                      type: object
-                    - required:
-                      - price_data
-                      type: object
-                    type: object
-                  type: object
-                type: object
-              properties:
-                price:
-                  description: A stored catalog price id (SC-D45). Mutually exclusive with price_data.
-                  pattern: ^price_[A-Za-z0-9_]{1,200}$
-                  type: string
-                price_data:
-                  additionalProperties: false
-                  properties:
-                    currency:
-                      pattern: ^[a-z]{3}$
-                      type: string
-                    product_data:
-                      additionalProperties: false
-                      properties:
-                        description:
-                          type: string
-                        name:
-                          type: string
-                      type: object
-                    unit_amount:
-                      minimum: 1
-                      type: integer
-                  required:
-                  - currency
-                  - unit_amount
-                  type: object
-                quantity:
-                  minimum: 1
-                  type: integer
-              type: object
-            maxItems: 20
-            minItems: 1
-            type: array
-        required:
-        - line_items
-        type: object
+      description: 'Create from 1..20 line_items, each with inline price_data or a stored price id (SC-D45:
+        the router resolves the price from the merchant catalog; its unit_amount and currency are the
+        only money source). Sent as application/x-www-form-urlencoded; the create honors Idempotency-Key.'
       properties:
         after_completion:
           additionalProperties: false
@@ -4005,21 +3765,10 @@ components:
               - hosted_confirmation
               type: string
           type: object
-        amount:
-          description: Smallest currency unit (minor units / cents).
-          type: integer
         currency:
           format: currency
           pattern: ^[a-z]{3}$
           type: string
-        description:
-          description: Shown on the hosted page. At most 1000 characters (shared cs_logic bound).
-          maxLength: 1000
-          type: string
-        expires_at:
-          description: Unix timestamp; Fluveo extension. Defaults to 24 hours; must be 30 minutes to 30
-            days out.
-          type: integer
         inactive_message:
           description: Shown on the hosted page when the link is inactive (Stripe parity).
           maxLength: 500
@@ -4032,58 +3781,39 @@ components:
             a quantity selector. Mutually exclusive with the flat amount/currency shape. Itemization is
             served by GET /v1/payment_links/{link}/line_items.
           items:
-            additionalProperties: false
             description: 'Exactly one of price (a stored catalog price id) or price_data (inline): an
               item with both, or with neither, is refused.'
-            not:
-              anyOf:
-              - required:
-                - price
-                - price_data
-                type: object
-              - not:
-                  anyOf:
-                  - required:
-                    - price
-                    type: object
-                  - required:
-                    - price_data
-                    type: object
-                  type: object
-                type: object
-              type: object
             properties:
               price:
                 description: A stored catalog price id (SC-D45). Mutually exclusive with price_data.
-                pattern: ^price_[A-Za-z0-9_]{1,200}$
+                maxLength: 5000
                 type: string
               price_data:
-                additionalProperties: false
                 properties:
                   currency:
-                    pattern: ^[a-z]{3}$
+                    format: currency
                     type: string
                   product_data:
-                    additionalProperties: false
                     properties:
                       description:
+                        maxLength: 40000
                         type: string
                       name:
+                        maxLength: 5000
                         type: string
+                    required:
+                    - name
                     type: object
                   unit_amount:
-                    minimum: 1
                     type: integer
                 required:
                 - currency
-                - unit_amount
                 type: object
               quantity:
-                minimum: 1
                 type: integer
+            required:
+            - quantity
             type: object
-          maxItems: 20
-          minItems: 1
           type: array
         metadata:
           $ref: '#/components/schemas/PaymentLinkMetadata'
@@ -4115,6 +3845,8 @@ components:
           - donate
           - subscribe
           type: string
+      required:
+      - line_items
       type: object
     PaymentLinkLineItem:
       additionalProperties: true
@@ -4332,9 +4064,8 @@ components:
       x-fluveo-reserved-key-policy: case_insensitive_fluveo_prefix_and_payment_link
     PaymentLinkUpdate:
       additionalProperties: false
-      description: 'Updatable: active, expires_at, metadata, after_completion, restrictions, inactive_message,
-        description, submit_type — aligned with the service''s SUPPORTED_UPDATE (spec 22745 P0). Sent
-        as application/x-www-form-urlencoded.'
+      description: 'Updatable: active, metadata, after_completion, restrictions, inactive_message, submit_type.
+        Sent as application/x-www-form-urlencoded.'
       properties:
         active:
           description: false deactivates immediately and short-circuits other fields. true is a no-op
@@ -4412,17 +4143,6 @@ components:
               - hosted_confirmation
               type: string
           type: object
-        description:
-          description: Updates the link description without changing existing checkout snapshots. Empty
-            string or null clears it; omission preserves it.
-          maxLength: 1000
-          nullable: true
-          type: string
-        expires_at:
-          description: Unix timestamp; Fluveo extension. When supplied, must be 30 minutes to 30 days
-            from request time. Omission leaves the stored expiry unchanged; an already-expired link cannot
-            extend its deadline.
-          type: integer
         inactive_message:
           description: Shown on the hosted page when the link is inactive (Stripe parity).
           maxLength: 500
@@ -5573,7 +5293,6 @@ components:
           enum:
           - abandoned
           - duplicate
-          - fraudulent
           - requested_by_customer
           maxLength: 5000
           type: string
@@ -5581,43 +5300,16 @@ components:
     SetupIntentConfirm:
       additionalProperties: false
       properties:
-        client_secret:
-          type: string
-        confirm:
-          type: boolean
-        currency:
-          pattern: ^[a-z]{3}$
-          type: string
-        customer:
-          type: string
-        description:
-          type: string
-        metadata:
-          $ref: '#/components/schemas/Metadata'
         payment_method_data:
           $ref: '#/components/schemas/SetupIntentPaymentMethodData'
-        receipt_email:
-          type: string
         return_url:
-          type: string
-        setup_future_usage:
-          description: Only `off_session` is accepted on this surface; `on_session` returns a named 400
-            on `setup_future_usage`.
-          enum:
-          - off_session
-          - on_session
           type: string
       type: object
     SetupIntentCreate:
       additionalProperties: false
       properties:
-        client_secret:
-          type: string
         confirm:
           type: boolean
-        currency:
-          pattern: ^[a-z]{3}$
-          type: string
         customer:
           type: string
         description:
@@ -5630,18 +5322,7 @@ components:
           type: string
         payment_method_data:
           $ref: '#/components/schemas/SetupIntentPaymentMethodData'
-        receipt_email:
-          type: string
         return_url:
-          type: string
-        setup_future_usage:
-          default: off_session
-          description: Defaults to `off_session` (Stripe default) when omitted and is the only supported
-            value; `on_session` is rejected with a named 400 on create, update and confirm. The terminal
-            event is always `setup_intent.succeeded`.
-          enum:
-          - off_session
-          - on_session
           type: string
       type: object
     SetupIntentLastSetupError:
@@ -5976,14 +5657,13 @@ components:
       - livemode
       type: object
     SetupIntentPaymentMethodData:
+      description: 'No type is public: inline card data is hidden from public /v1 (ADR 0004, amendment
+        G5/C14).'
       properties:
         billing_details:
           type: object
-        card:
-          $ref: '#/components/schemas/PaymentIntentCardData'
         type:
-          enum:
-          - card
+          enum: []
           type: string
       required:
       - type
@@ -5991,13 +5671,6 @@ components:
     SetupIntentUpdate:
       additionalProperties: false
       properties:
-        client_secret:
-          type: string
-        confirm:
-          type: boolean
-        currency:
-          pattern: ^[a-z]{3}$
-          type: string
         customer:
           type: string
         description:
@@ -6006,17 +5679,6 @@ components:
           $ref: '#/components/schemas/Metadata'
         payment_method_data:
           $ref: '#/components/schemas/SetupIntentPaymentMethodData'
-        receipt_email:
-          type: string
-        return_url:
-          type: string
-        setup_future_usage:
-          description: Only `off_session` is accepted on this surface; `on_session` returns a named 400
-            on `setup_future_usage`.
-          enum:
-          - off_session
-          - on_session
-          type: string
       type: object
     Shipping:
       additionalProperties: false
@@ -31669,10 +31331,6 @@ components:
         currency:
           format: currency
           type: string
-        current_period_end:
-          type: integer
-        current_period_start:
-          type: integer
         customer:
           type: string
         customer_account:
@@ -31815,8 +31473,6 @@ components:
       - object
       - customer
       - status
-      - current_period_start
-      - current_period_end
       - cancel_at_period_end
       - items
       - cancel_at
@@ -31886,8 +31542,6 @@ components:
             - price
             type: object
           type: array
-        mandate:
-          type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
         payment_behavior:
@@ -31896,10 +31550,6 @@ components:
           - error_if_incomplete
           - allow_incomplete
           type: string
-        start_date:
-          description: Unix timestamp (seconds). Positions the first billing period; a future value is
-            a scheduled start (subscription_schedules are not offered).
-          type: integer
         trial_period_days:
           description: 1-730. The subscription starts trialing; the first period runs to trial_end.
           type: integer
@@ -32080,6 +31730,262 @@ components:
           type: string
         enabled_events:
           items:
+            enum:
+            - '*'
+            - account.application.authorized
+            - account.application.deauthorized
+            - account.external_account.created
+            - account.external_account.deleted
+            - account.external_account.updated
+            - account.updated
+            - application_fee.created
+            - application_fee.refund.updated
+            - application_fee.refunded
+            - balance.available
+            - balance_settings.updated
+            - billing.alert.triggered
+            - billing.credit_grant.created
+            - billing_portal.configuration.created
+            - billing_portal.configuration.updated
+            - billing_portal.session.created
+            - capability.updated
+            - cash_balance.funds_available
+            - charge.captured
+            - charge.dispute.closed
+            - charge.dispute.created
+            - charge.dispute.funds_reinstated
+            - charge.dispute.funds_withdrawn
+            - charge.dispute.updated
+            - charge.expired
+            - charge.failed
+            - charge.pending
+            - charge.refund.updated
+            - charge.refunded
+            - charge.succeeded
+            - charge.updated
+            - checkout.session.async_payment_failed
+            - checkout.session.async_payment_succeeded
+            - checkout.session.completed
+            - checkout.session.expired
+            - climate.order.canceled
+            - climate.order.created
+            - climate.order.delayed
+            - climate.order.delivered
+            - climate.order.product_substituted
+            - climate.product.created
+            - climate.product.pricing_updated
+            - coupon.created
+            - coupon.deleted
+            - coupon.updated
+            - credit_note.created
+            - credit_note.updated
+            - credit_note.voided
+            - customer.created
+            - customer.deleted
+            - customer.discount.created
+            - customer.discount.deleted
+            - customer.discount.updated
+            - customer.source.created
+            - customer.source.deleted
+            - customer.source.expiring
+            - customer.source.updated
+            - customer.subscription.created
+            - customer.subscription.deleted
+            - customer.subscription.paused
+            - customer.subscription.pending_update_applied
+            - customer.subscription.pending_update_expired
+            - customer.subscription.resumed
+            - customer.subscription.trial_will_end
+            - customer.subscription.updated
+            - customer.tax_id.created
+            - customer.tax_id.deleted
+            - customer.tax_id.updated
+            - customer.updated
+            - customer_cash_balance_transaction.created
+            - entitlements.active_entitlement_summary.updated
+            - file.created
+            - financial_connections.account.account_numbers_updated
+            - financial_connections.account.created
+            - financial_connections.account.deactivated
+            - financial_connections.account.disconnected
+            - financial_connections.account.reactivated
+            - financial_connections.account.refreshed_balance
+            - financial_connections.account.refreshed_ownership
+            - financial_connections.account.refreshed_transactions
+            - financial_connections.account.upcoming_account_number_expiry
+            - identity.verification_session.canceled
+            - identity.verification_session.created
+            - identity.verification_session.processing
+            - identity.verification_session.redacted
+            - identity.verification_session.requires_input
+            - identity.verification_session.verified
+            - invoice.created
+            - invoice.deleted
+            - invoice.finalization_failed
+            - invoice.finalized
+            - invoice.marked_uncollectible
+            - invoice.overdue
+            - invoice.overpaid
+            - invoice.paid
+            - invoice.payment_action_required
+            - invoice.payment_attempt_required
+            - invoice.payment_failed
+            - invoice.payment_succeeded
+            - invoice.sent
+            - invoice.upcoming
+            - invoice.updated
+            - invoice.voided
+            - invoice.will_be_due
+            - invoice_payment.paid
+            - invoiceitem.created
+            - invoiceitem.deleted
+            - issuing_authorization.created
+            - issuing_authorization.request
+            - issuing_authorization.updated
+            - issuing_card.created
+            - issuing_card.updated
+            - issuing_cardholder.created
+            - issuing_cardholder.updated
+            - issuing_dispute.closed
+            - issuing_dispute.created
+            - issuing_dispute.funds_reinstated
+            - issuing_dispute.funds_rescinded
+            - issuing_dispute.submitted
+            - issuing_dispute.updated
+            - issuing_personalization_design.activated
+            - issuing_personalization_design.deactivated
+            - issuing_personalization_design.rejected
+            - issuing_personalization_design.updated
+            - issuing_token.created
+            - issuing_token.updated
+            - issuing_transaction.created
+            - issuing_transaction.purchase_details_receipt_updated
+            - issuing_transaction.updated
+            - mandate.updated
+            - payment_intent.amount_capturable_updated
+            - payment_intent.canceled
+            - payment_intent.created
+            - payment_intent.partially_funded
+            - payment_intent.payment_failed
+            - payment_intent.processing
+            - payment_intent.requires_action
+            - payment_intent.succeeded
+            - payment_link.created
+            - payment_link.updated
+            - payment_method.attached
+            - payment_method.automatically_updated
+            - payment_method.detached
+            - payment_method.updated
+            - payout.canceled
+            - payout.created
+            - payout.failed
+            - payout.paid
+            - payout.reconciliation_completed
+            - payout.updated
+            - person.created
+            - person.deleted
+            - person.updated
+            - plan.created
+            - plan.deleted
+            - plan.updated
+            - price.created
+            - price.deleted
+            - price.updated
+            - product.created
+            - product.deleted
+            - product.updated
+            - promotion_code.created
+            - promotion_code.updated
+            - quote.accepted
+            - quote.canceled
+            - quote.created
+            - quote.finalized
+            - radar.early_fraud_warning.created
+            - radar.early_fraud_warning.updated
+            - refund.created
+            - refund.failed
+            - refund.updated
+            - reporting.report_run.failed
+            - reporting.report_run.succeeded
+            - reporting.report_type.updated
+            - reserve.hold.created
+            - reserve.hold.updated
+            - reserve.plan.created
+            - reserve.plan.disabled
+            - reserve.plan.expired
+            - reserve.plan.updated
+            - reserve.release.created
+            - review.closed
+            - review.opened
+            - setup_intent.canceled
+            - setup_intent.created
+            - setup_intent.requires_action
+            - setup_intent.setup_failed
+            - setup_intent.succeeded
+            - sigma.scheduled_query_run.created
+            - source.canceled
+            - source.chargeable
+            - source.failed
+            - source.mandate_notification
+            - source.refund_attributes_required
+            - source.transaction.created
+            - source.transaction.updated
+            - subscription_schedule.aborted
+            - subscription_schedule.canceled
+            - subscription_schedule.completed
+            - subscription_schedule.created
+            - subscription_schedule.expiring
+            - subscription_schedule.released
+            - subscription_schedule.updated
+            - tax.settings.updated
+            - tax_rate.created
+            - tax_rate.updated
+            - terminal.reader.action_failed
+            - terminal.reader.action_succeeded
+            - terminal.reader.action_updated
+            - test_helpers.test_clock.advancing
+            - test_helpers.test_clock.created
+            - test_helpers.test_clock.deleted
+            - test_helpers.test_clock.internal_failure
+            - test_helpers.test_clock.ready
+            - topup.canceled
+            - topup.created
+            - topup.failed
+            - topup.reversed
+            - topup.succeeded
+            - transfer.created
+            - transfer.reversed
+            - transfer.updated
+            - treasury.credit_reversal.created
+            - treasury.credit_reversal.posted
+            - treasury.debit_reversal.completed
+            - treasury.debit_reversal.created
+            - treasury.debit_reversal.initial_credit_granted
+            - treasury.financial_account.closed
+            - treasury.financial_account.created
+            - treasury.financial_account.features_status_updated
+            - treasury.inbound_transfer.canceled
+            - treasury.inbound_transfer.created
+            - treasury.inbound_transfer.failed
+            - treasury.inbound_transfer.succeeded
+            - treasury.outbound_payment.canceled
+            - treasury.outbound_payment.created
+            - treasury.outbound_payment.expected_arrival_date_updated
+            - treasury.outbound_payment.failed
+            - treasury.outbound_payment.posted
+            - treasury.outbound_payment.returned
+            - treasury.outbound_payment.tracking_details_updated
+            - treasury.outbound_transfer.canceled
+            - treasury.outbound_transfer.created
+            - treasury.outbound_transfer.expected_arrival_date_updated
+            - treasury.outbound_transfer.failed
+            - treasury.outbound_transfer.posted
+            - treasury.outbound_transfer.returned
+            - treasury.outbound_transfer.tracking_details_updated
+            - treasury.received_credit.created
+            - treasury.received_credit.failed
+            - treasury.received_credit.succeeded
+            - treasury.received_debit.created
             type: string
           type: array
         metadata:
@@ -32091,83 +31997,6 @@ components:
       required:
       - url
       - enabled_events
-      type: object
-    WebhookEndpointDeliveryAttempt:
-      additionalProperties: false
-      properties:
-        attempt:
-          description: 1-based position in the retry ladder, or null where the sender keeps no counter
-          nullable: true
-          type: integer
-        created:
-          type: integer
-        event_id:
-          type: string
-        event_type:
-          type: string
-        failure_code:
-          enum:
-          - http_error
-          - timeout
-          - connection_failed
-          - destination_rejected
-          nullable: true
-          type: string
-        latency_ms:
-          nullable: true
-          type: integer
-        livemode:
-          type: boolean
-        object:
-          enum:
-          - webhook_endpoint_delivery_attempt
-          type: string
-        response_status:
-          nullable: true
-          type: integer
-        result:
-          enum:
-          - succeeded
-          - failed
-          type: string
-        test_event:
-          type: boolean
-        webhook_endpoint:
-          type: string
-      required:
-      - object
-      - webhook_endpoint
-      - event_id
-      - event_type
-      - test_event
-      - attempt
-      - created
-      - livemode
-      - result
-      - failure_code
-      - response_status
-      - latency_ms
-      type: object
-    WebhookEndpointDeliveryAttemptList:
-      additionalProperties: true
-      properties:
-        data:
-          items:
-            $ref: '#/components/schemas/WebhookEndpointDeliveryAttempt'
-          type: array
-        has_more:
-          type: boolean
-        object:
-          enum:
-          - list
-          type: string
-        url:
-          type: string
-      required:
-      - object
-      - data
-      - has_more
-      - url
       type: object
     WebhookEndpointList:
       additionalProperties: true
@@ -32192,127 +32021,6 @@ components:
       - has_more
       - url
       type: object
-    WebhookEndpointTestDelivery:
-      additionalProperties: false
-      properties:
-        created:
-          type: integer
-        event_id:
-          pattern: ^evt_test_[A-Za-z0-9]{24}$
-          type: string
-        event_type:
-          description: The sent type; `charge.succeeded`, `charge.failed` and `charge.captured` only for
-            accounts whose payments are processed through Stripe Connect
-          enum:
-          - payment_intent.succeeded
-          - payment_intent.processing
-          - payment_intent.payment_failed
-          - payment_intent.canceled
-          - payment_intent.amount_capturable_updated
-          - payment_intent.requires_action
-          - setup_intent.succeeded
-          - setup_intent.setup_failed
-          - charge.refunded
-          - refund.failed
-          - charge.succeeded
-          - charge.failed
-          - charge.captured
-          - charge.dispute.created
-          - charge.dispute.updated
-          - charge.dispute.closed
-          - mandate.updated
-          - payout.paid
-          - payout.failed
-          - payout.created
-          - payout.canceled
-          type: string
-        failure_code:
-          enum:
-          - http_error
-          - timeout
-          - connection_failed
-          - destination_rejected
-          nullable: true
-          type: string
-        latency_ms:
-          description: Milliseconds from the request to the response headers; null when no request was
-            made
-          nullable: true
-          type: integer
-        livemode:
-          enum:
-          - false
-          type: boolean
-        object:
-          enum:
-          - webhook_endpoint_test_delivery
-          type: string
-        response_excerpt:
-          description: 'At most the first 1024 bytes of the endpoint''s answer, as text: control characters
-            become spaces and every webhook signing secret with its prefix (any letter case) is redacted.
-            Returned once and never stored; null when no body was read, including routers built with the
-            local webhook allowlist.'
-          nullable: true
-          type: string
-        response_excerpt_truncated:
-          type: boolean
-        response_status:
-          nullable: true
-          type: integer
-        result:
-          enum:
-          - succeeded
-          - failed
-          type: string
-        webhook_endpoint:
-          type: string
-      required:
-      - object
-      - webhook_endpoint
-      - event_id
-      - event_type
-      - created
-      - livemode
-      - result
-      - failure_code
-      - response_status
-      - latency_ms
-      - response_excerpt
-      - response_excerpt_truncated
-      type: object
-    WebhookEndpointTestEventRequest:
-      additionalProperties: false
-      properties:
-        type:
-          description: One of the 21 Stripe event types Fluveo delivers; `charge.succeeded`, `charge.failed`
-            and `charge.captured` are delivered for accounts whose payments are processed through Stripe
-            Connect (on other accounts they are refused with 400); platform `hs.*` types are refused
-          enum:
-          - payment_intent.succeeded
-          - payment_intent.processing
-          - payment_intent.payment_failed
-          - payment_intent.canceled
-          - payment_intent.amount_capturable_updated
-          - payment_intent.requires_action
-          - setup_intent.succeeded
-          - setup_intent.setup_failed
-          - charge.refunded
-          - refund.failed
-          - charge.succeeded
-          - charge.failed
-          - charge.captured
-          - charge.dispute.created
-          - charge.dispute.updated
-          - charge.dispute.closed
-          - mandate.updated
-          - payout.paid
-          - payout.failed
-          - payout.created
-          - payout.canceled
-          type: string
-      required:
-      - type
-      type: object
     WebhookEndpointUpdate:
       additionalProperties: true
       properties:
@@ -32322,6 +32030,262 @@ components:
           type: boolean
         enabled_events:
           items:
+            enum:
+            - '*'
+            - account.application.authorized
+            - account.application.deauthorized
+            - account.external_account.created
+            - account.external_account.deleted
+            - account.external_account.updated
+            - account.updated
+            - application_fee.created
+            - application_fee.refund.updated
+            - application_fee.refunded
+            - balance.available
+            - balance_settings.updated
+            - billing.alert.triggered
+            - billing.credit_grant.created
+            - billing_portal.configuration.created
+            - billing_portal.configuration.updated
+            - billing_portal.session.created
+            - capability.updated
+            - cash_balance.funds_available
+            - charge.captured
+            - charge.dispute.closed
+            - charge.dispute.created
+            - charge.dispute.funds_reinstated
+            - charge.dispute.funds_withdrawn
+            - charge.dispute.updated
+            - charge.expired
+            - charge.failed
+            - charge.pending
+            - charge.refund.updated
+            - charge.refunded
+            - charge.succeeded
+            - charge.updated
+            - checkout.session.async_payment_failed
+            - checkout.session.async_payment_succeeded
+            - checkout.session.completed
+            - checkout.session.expired
+            - climate.order.canceled
+            - climate.order.created
+            - climate.order.delayed
+            - climate.order.delivered
+            - climate.order.product_substituted
+            - climate.product.created
+            - climate.product.pricing_updated
+            - coupon.created
+            - coupon.deleted
+            - coupon.updated
+            - credit_note.created
+            - credit_note.updated
+            - credit_note.voided
+            - customer.created
+            - customer.deleted
+            - customer.discount.created
+            - customer.discount.deleted
+            - customer.discount.updated
+            - customer.source.created
+            - customer.source.deleted
+            - customer.source.expiring
+            - customer.source.updated
+            - customer.subscription.created
+            - customer.subscription.deleted
+            - customer.subscription.paused
+            - customer.subscription.pending_update_applied
+            - customer.subscription.pending_update_expired
+            - customer.subscription.resumed
+            - customer.subscription.trial_will_end
+            - customer.subscription.updated
+            - customer.tax_id.created
+            - customer.tax_id.deleted
+            - customer.tax_id.updated
+            - customer.updated
+            - customer_cash_balance_transaction.created
+            - entitlements.active_entitlement_summary.updated
+            - file.created
+            - financial_connections.account.account_numbers_updated
+            - financial_connections.account.created
+            - financial_connections.account.deactivated
+            - financial_connections.account.disconnected
+            - financial_connections.account.reactivated
+            - financial_connections.account.refreshed_balance
+            - financial_connections.account.refreshed_ownership
+            - financial_connections.account.refreshed_transactions
+            - financial_connections.account.upcoming_account_number_expiry
+            - identity.verification_session.canceled
+            - identity.verification_session.created
+            - identity.verification_session.processing
+            - identity.verification_session.redacted
+            - identity.verification_session.requires_input
+            - identity.verification_session.verified
+            - invoice.created
+            - invoice.deleted
+            - invoice.finalization_failed
+            - invoice.finalized
+            - invoice.marked_uncollectible
+            - invoice.overdue
+            - invoice.overpaid
+            - invoice.paid
+            - invoice.payment_action_required
+            - invoice.payment_attempt_required
+            - invoice.payment_failed
+            - invoice.payment_succeeded
+            - invoice.sent
+            - invoice.upcoming
+            - invoice.updated
+            - invoice.voided
+            - invoice.will_be_due
+            - invoice_payment.paid
+            - invoiceitem.created
+            - invoiceitem.deleted
+            - issuing_authorization.created
+            - issuing_authorization.request
+            - issuing_authorization.updated
+            - issuing_card.created
+            - issuing_card.updated
+            - issuing_cardholder.created
+            - issuing_cardholder.updated
+            - issuing_dispute.closed
+            - issuing_dispute.created
+            - issuing_dispute.funds_reinstated
+            - issuing_dispute.funds_rescinded
+            - issuing_dispute.submitted
+            - issuing_dispute.updated
+            - issuing_personalization_design.activated
+            - issuing_personalization_design.deactivated
+            - issuing_personalization_design.rejected
+            - issuing_personalization_design.updated
+            - issuing_token.created
+            - issuing_token.updated
+            - issuing_transaction.created
+            - issuing_transaction.purchase_details_receipt_updated
+            - issuing_transaction.updated
+            - mandate.updated
+            - payment_intent.amount_capturable_updated
+            - payment_intent.canceled
+            - payment_intent.created
+            - payment_intent.partially_funded
+            - payment_intent.payment_failed
+            - payment_intent.processing
+            - payment_intent.requires_action
+            - payment_intent.succeeded
+            - payment_link.created
+            - payment_link.updated
+            - payment_method.attached
+            - payment_method.automatically_updated
+            - payment_method.detached
+            - payment_method.updated
+            - payout.canceled
+            - payout.created
+            - payout.failed
+            - payout.paid
+            - payout.reconciliation_completed
+            - payout.updated
+            - person.created
+            - person.deleted
+            - person.updated
+            - plan.created
+            - plan.deleted
+            - plan.updated
+            - price.created
+            - price.deleted
+            - price.updated
+            - product.created
+            - product.deleted
+            - product.updated
+            - promotion_code.created
+            - promotion_code.updated
+            - quote.accepted
+            - quote.canceled
+            - quote.created
+            - quote.finalized
+            - radar.early_fraud_warning.created
+            - radar.early_fraud_warning.updated
+            - refund.created
+            - refund.failed
+            - refund.updated
+            - reporting.report_run.failed
+            - reporting.report_run.succeeded
+            - reporting.report_type.updated
+            - reserve.hold.created
+            - reserve.hold.updated
+            - reserve.plan.created
+            - reserve.plan.disabled
+            - reserve.plan.expired
+            - reserve.plan.updated
+            - reserve.release.created
+            - review.closed
+            - review.opened
+            - setup_intent.canceled
+            - setup_intent.created
+            - setup_intent.requires_action
+            - setup_intent.setup_failed
+            - setup_intent.succeeded
+            - sigma.scheduled_query_run.created
+            - source.canceled
+            - source.chargeable
+            - source.failed
+            - source.mandate_notification
+            - source.refund_attributes_required
+            - source.transaction.created
+            - source.transaction.updated
+            - subscription_schedule.aborted
+            - subscription_schedule.canceled
+            - subscription_schedule.completed
+            - subscription_schedule.created
+            - subscription_schedule.expiring
+            - subscription_schedule.released
+            - subscription_schedule.updated
+            - tax.settings.updated
+            - tax_rate.created
+            - tax_rate.updated
+            - terminal.reader.action_failed
+            - terminal.reader.action_succeeded
+            - terminal.reader.action_updated
+            - test_helpers.test_clock.advancing
+            - test_helpers.test_clock.created
+            - test_helpers.test_clock.deleted
+            - test_helpers.test_clock.internal_failure
+            - test_helpers.test_clock.ready
+            - topup.canceled
+            - topup.created
+            - topup.failed
+            - topup.reversed
+            - topup.succeeded
+            - transfer.created
+            - transfer.reversed
+            - transfer.updated
+            - treasury.credit_reversal.created
+            - treasury.credit_reversal.posted
+            - treasury.debit_reversal.completed
+            - treasury.debit_reversal.created
+            - treasury.debit_reversal.initial_credit_granted
+            - treasury.financial_account.closed
+            - treasury.financial_account.created
+            - treasury.financial_account.features_status_updated
+            - treasury.inbound_transfer.canceled
+            - treasury.inbound_transfer.created
+            - treasury.inbound_transfer.failed
+            - treasury.inbound_transfer.succeeded
+            - treasury.outbound_payment.canceled
+            - treasury.outbound_payment.created
+            - treasury.outbound_payment.expected_arrival_date_updated
+            - treasury.outbound_payment.failed
+            - treasury.outbound_payment.posted
+            - treasury.outbound_payment.returned
+            - treasury.outbound_payment.tracking_details_updated
+            - treasury.outbound_transfer.canceled
+            - treasury.outbound_transfer.created
+            - treasury.outbound_transfer.expected_arrival_date_updated
+            - treasury.outbound_transfer.failed
+            - treasury.outbound_transfer.posted
+            - treasury.outbound_transfer.returned
+            - treasury.outbound_transfer.tracking_details_updated
+            - treasury.received_credit.created
+            - treasury.received_credit.failed
+            - treasury.received_credit.succeeded
+            - treasury.received_debit.created
             type: string
           type: array
         metadata:
@@ -33535,7 +33499,6 @@ components:
       minProperties: 2
       properties:
         pix_display_qr_code:
-          additionalProperties: false
           properties:
             data:
               description: EMV copy-and-paste payload exactly as issued.
@@ -35137,7 +35100,6 @@ paths:
       - $ref: '#/components/parameters/starting_after'
       - $ref: '#/components/parameters/ending_before'
       - $ref: '#/components/parameters/balanceTransactionSource'
-      - $ref: '#/components/parameters/balanceTransactionExpand'
       - description: Only return transactions that were created during the given date interval.
         explode: true
         in: query
@@ -35288,64 +35250,6 @@ paths:
         lifecycle: served
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/charges
-  /v1/checkout/branding:
-    get:
-      description: Retrieve the merchant Checkout Branding default used by hosted Checkout Sessions. This
-        is the Stripe-shaped merchant-facing branding object described by ADR 0020.
-      operationId: retrieveCheckoutBranding
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CheckoutBranding'
-          description: Stripe-compatible response
-        default:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Stripe-compatible error response
-      x-fluveo-compatibility:
-        audience: merchant_public
-        auth_policy: stripe_secret_key
-        idempotency_policy: not_applicable
-        lifecycle: served
-        mode_policy: test_only
-        stripe_reference: null
-    put:
-      description: Replace or upsert the merchant Checkout Branding default. URL assets are accepted;
-        file-backed assets return a Stripe-shaped 400 until Files API support ships.
-      operationId: updateCheckoutBranding
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CheckoutBrandingUpdate'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CheckoutBrandingUpdate'
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CheckoutBranding'
-          description: Stripe-compatible response
-        default:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Stripe-compatible error response
-      x-fluveo-compatibility:
-        audience: merchant_public
-        auth_policy: stripe_secret_key
-        idempotency_policy: not_applicable
-        lifecycle: served
-        mode_policy: test_only
-        stripe_reference: null
   /v1/checkout/sessions:
     get:
       operationId: listCheckoutSessions
@@ -35357,10 +35261,6 @@ paths:
       - $ref: '#/components/parameters/payment_intent'
       - $ref: '#/components/parameters/status'
       - $ref: '#/components/parameters/created'
-      - $ref: '#/components/parameters/created_gt'
-      - $ref: '#/components/parameters/created_gte'
-      - $ref: '#/components/parameters/created_lt'
-      - $ref: '#/components/parameters/created_lte'
       responses:
         '200':
           content:
@@ -35584,13 +35484,6 @@ paths:
         schema:
           minLength: 1
           type: string
-      - description: Case-insensitive filter over customer name, email, and cus_ id, served by the merchant_customers
-          read model (Fluveo merchant keys only; wildcard characters are matched literally).
-        in: query
-        name: search
-        required: false
-        schema:
-          type: string
       responses:
         '200':
           content:
@@ -35787,18 +35680,6 @@ paths:
       - in: query
         name: type
         schema:
-          type: string
-      - in: query
-        name: object
-        schema:
-          type: string
-      - description: 'Fluveo extension (INV-EV5): the PaymentIntent''s events plus those of the Charges
-          and Refunds it owns. Not a Stripe parameter; a value that is not a PaymentIntent id is a 400
-          naming payment_intent.'
-        in: query
-        name: payment_intent
-        schema:
-          pattern: ^pi_.+
           type: string
       - explode: true
         in: query
@@ -36022,33 +35903,6 @@ paths:
         lifecycle: served
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/invoices
-  /v1/invoices/{invoice}/hosted_invoice_url:
-    get:
-      description: Mint (or return) the opaque signed hosted invoice page address for a finalized invoice.
-        A paid invoice's link is revoked (404).
-      operationId: retrieveHostedInvoiceUrl
-      parameters:
-      - $ref: '#/components/parameters/invoicePath'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HostedInvoiceUrl'
-          description: Stripe-compatible response
-        default:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Stripe-compatible error response
-      x-fluveo-compatibility:
-        audience: merchant_public
-        auth_policy: stripe_secret_key
-        idempotency_policy: not_applicable
-        lifecycle: served
-        mode_policy: test_only
-        stripe_reference: null
   /v1/payment_intents:
     get:
       operationId: listPaymentIntents
@@ -36058,10 +35912,6 @@ paths:
       - $ref: '#/components/parameters/ending_before'
       - $ref: '#/components/parameters/customer'
       - $ref: '#/components/parameters/created'
-      - $ref: '#/components/parameters/created_gt'
-      - $ref: '#/components/parameters/created_gte'
-      - $ref: '#/components/parameters/created_lt'
-      - $ref: '#/components/parameters/created_lte'
       responses:
         '200':
           content:
@@ -36293,29 +36143,15 @@ paths:
         stripe_reference: https://docs.stripe.com/api/payment_intents
   /v1/payment_links:
     get:
-      description: 'List payment links in created-desc order. status=active selects the effective payable
-        state: active=true, future expires_at, and no exhausted completion limit. inactive, expired, and
-        complete are compatible-subset aliases for the non-payable side rather than distinct lifecycle
-        states. Cursor pagination (starting_after/ending_before) takes a plink_ id checked before lookup;
-        a malformed cursor is a 400 invalid_request naming the param, and an absent, foreign-merchant,
-        or wrong-mode cursor is the same 404 resource_missing. This surface is merchant- and mode-scoped
-        through the Fluveo /v1 tenant wrapper.'
+      description: List payment links in created-desc order. Cursor pagination (starting_after/ending_before)
+        takes a plink_ id checked before lookup; a malformed cursor is a 400 invalid_request naming the
+        param, and an absent, foreign-merchant, or wrong-mode cursor is the same 404 resource_missing.
+        This surface is merchant- and mode-scoped through the Fluveo /v1 tenant wrapper.
       operationId: listPaymentLinks
       parameters:
       - $ref: '#/components/parameters/limit'
       - $ref: '#/components/parameters/starting_after'
       - $ref: '#/components/parameters/ending_before'
-      - description: Payment Link effective-state filter. active selects links that are enabled, unexpired,
-          and below any completion limit; inactive, expired, and complete alias the non-payable side.
-        in: query
-        name: status
-        schema:
-          enum:
-          - active
-          - inactive
-          - expired
-          - complete
-          type: string
       responses:
         '200':
           content:
@@ -36337,10 +36173,9 @@ paths:
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/payment_links
     post:
-      description: 'Create a reusable merchant-owned payment link from exactly one money shape: flat amount/currency
-        or inline line_items. The body is application/x-www-form-urlencoded (ADR 0004). Idempotency-Key
-        replay returns the original link; reuse with different parameters is a 409 idempotency_error.
-        expires_at is a Fluveo extension and defaults to 24 hours.'
+      description: Create a reusable merchant-owned payment link from line_items. The body is application/x-www-form-urlencoded
+        (ADR 0004). Idempotency-Key replay returns the original link; reuse with different parameters
+        is a 409 idempotency_error.
       operationId: createPaymentLink
       parameters:
       - $ref: '#/components/parameters/idempotencyKey'
@@ -36414,9 +36249,9 @@ paths:
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/payment_links
     post:
-      description: Update active, expires_at, metadata, after_completion, restrictions, inactive_message,
-        or submit_type. amount/currency remain immutable. Metadata merges atomically and empty values
-        delete keys. The Fluveo /v1 tenant wrapper scopes the mutation to the active merchant and mode.
+      description: Update active, metadata, after_completion, restrictions, inactive_message, or submit_type.
+        Metadata merges atomically and empty values delete keys. The Fluveo /v1 tenant wrapper scopes
+        the mutation to the active merchant and mode.
       operationId: updatePaymentLink
       parameters:
       - $ref: '#/components/parameters/paymentLinkPath'
@@ -36460,34 +36295,6 @@ paths:
         lifecycle: served
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/payment_links
-  /v1/payment_links/{payment_link}/expire:
-    post:
-      description: Expire a payment link so it accepts no further payments. The Fluveo /v1 tenant wrapper
-        scopes the mutation to the active merchant.
-      operationId: expirePaymentLink
-      parameters:
-      - $ref: '#/components/parameters/paymentLinkPath'
-      - $ref: '#/components/parameters/idempotencyKey'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaymentLink'
-          description: Stripe-compatible response
-        default:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Stripe-compatible error response
-      x-fluveo-compatibility:
-        audience: merchant_public
-        auth_policy: stripe_secret_key
-        idempotency_policy: required_on_retryable_write
-        lifecycle: served
-        mode_policy: test_only
-        stripe_reference: null
   /v1/payment_links/{payment_link}/line_items:
     get:
       operationId: listPaymentLinkLineItems
@@ -37576,169 +37383,6 @@ paths:
         lifecycle: served
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/webhook_endpoints/update
-  /v1/webhook_endpoints/{endpoint_id}/delivery_attempts:
-    get:
-      description: 'Fluveo extension (Test mode only): the newest delivery attempts of this endpoint,
-        real and test, newest first: at most 20 from the last 7 days. The history is best-effort and may
-        be incomplete; an unavailable history answers 503 `webhook_attempts_unavailable`, never an empty
-        list. Any query parameter is refused with 400.'
-      operationId: listWebhookEndpointDeliveryAttempts
-      parameters:
-      - in: path
-        name: endpoint_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WebhookEndpointDeliveryAttemptList'
-          description: 'Fluveo extension response: the newest delivery attempts, newest first'
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: A query parameter was sent, or the request is in Live mode (`test_mode_only`)
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Missing or invalid credential
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: No such webhook endpoint for this store and mode (`resource_missing`)
-        '503':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: The delivery history could not be read (`webhook_attempts_unavailable`)
-      x-fluveo-compatibility:
-        audience: merchant_public
-        auth_policy: stripe_secret_key
-        idempotency_policy: not_applicable
-        lifecycle: served
-        mode_policy: test_only
-        stripe_reference: null
-  /v1/webhook_endpoints/{endpoint_id}/rotate_secret:
-    post:
-      description: 'Fluveo extension: replace one endpoint signing secret and return the new secret once.'
-      operationId: rotateWebhookEndpointSecret
-      parameters:
-      - in: path
-        name: endpoint_id
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WebhookEndpoint'
-          description: Fluveo extension response with the rotated secret shown once
-        default:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Stripe-compatible error response
-      x-fluveo-compatibility:
-        audience: merchant_public
-        auth_policy: stripe_secret_key
-        idempotency_policy: not_applicable
-        lifecycle: served
-        mode_policy: test_only
-        stripe_reference: null
-  /v1/webhook_endpoints/{endpoint_id}/send_test_event:
-    post:
-      description: 'Fluveo extension (Test mode only): send one signed synthetic test event of `type`
-        to this endpoint''s saved URL and answer what the endpoint returned. The event is marked in its
-        signed body (`livemode: false`, `fluveo_test_event: true`, an `evt_test_` id), is never listed
-        in /v1/events, and is never retried. Disabled endpoints receive test events and stay disabled.
-        Only saved URLs using https on port 443 can receive a test event. An optional `Idempotency-Key`
-        header sets the test event id: the same key, endpoint, and event type always give the same `evt_test_`
-        id, and there is no replay journal. A malformed key (more than one header, empty, non-printable,
-        or longer than 255 characters) is refused with 400. Any query parameter is refused with 400. Test
-        events are off unless enabled for the environment; when off, the send is refused with 400 `webhook_test_events_disabled`.
-        Limits, each a sustained rate with a burst of the same size: per store and mode sustained 20 per
-        minute with bursts of 20; per endpoint sustained 5 per minute with bursts of 5; per destination
-        host, store, and mode sustained 10 per minute with bursts of 10; per destination host across all
-        stores sustained 300 per minute with bursts of 300.'
-      operationId: sendWebhookEndpointTestEvent
-      parameters:
-      - in: path
-        name: endpoint_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/WebhookEndpointTestEventRequest'
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WebhookEndpointTestDelivery'
-          description: 'Fluveo extension response: the outcome of the one test delivery (a failed delivery
-            is still a 200)'
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: 'Refused before anything was sent: a missing, unknown, or unsubscribed `type`;
-            an unknown form field or query parameter; a malformed `Idempotency-Key`; Live mode (`test_mode_only`);
-            test events not enabled (`webhook_test_events_disabled`); webhook delivery disabled (`webhook_delivery_disabled`);
-            a saved URL that is not https on port 443 (`webhook_test_port_unsupported`); or a saved URL
-            that moved to another host while the send was being checked (`webhook_test_destination_changed`)'
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Missing or invalid credential
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: No such webhook endpoint for this store and mode (`resource_missing`)
-        '429':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: A test-send limit is spent (`rate_limit`); nothing was sent
-          headers:
-            Retry-After:
-              description: Seconds until the spent limit admits another test send (1 to 60)
-              schema:
-                type: integer
-        '503':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: The limit could not be checked (`rate_limit_unavailable`); nothing was sent
-      x-fluveo-compatibility:
-        audience: merchant_public
-        auth_policy: stripe_secret_key
-        idempotency_policy: not_applicable
-        lifecycle: served
-        mode_policy: test_only
-        stripe_reference: null
 security:
 - basicAuth: []
 - bearerAuth: []

@@ -5330,7 +5330,6 @@ components:
       properties:
         charge:
           maxLength: 5000
-          nullable: true
           type: string
         code:
           enum:
@@ -5534,7 +5533,6 @@ components:
           type: string
         param:
           maxLength: 5000
-          nullable: true
           type: string
         payment_method:
           $ref: '#/components/schemas/SetupIntentPaymentMethod'
@@ -5573,6 +5571,8 @@ components:
       type: object
     SetupIntentPaymentMethod:
       properties:
+        billing_details:
+          $ref: '#/components/schemas/StripePinned_billing_details'
         card:
           nullable: true
           properties: {}
@@ -5580,11 +5580,27 @@ components:
         created:
           format: unix-time
           type: integer
+        customer:
+          anyOf:
+          - $ref: '#/components/schemas/StripePinned_customer'
+          - maxLength: 5000
+            type: string
+          nullable: true
+        customer_account:
+          maxLength: 5000
+          nullable: true
+          type: string
         id:
           maxLength: 5000
           type: string
         livemode:
           type: boolean
+        metadata:
+          additionalProperties:
+            maxLength: 500
+            type: string
+          nullable: true
+          type: object
         object:
           enum:
           - payment_method
@@ -5655,6 +5671,10 @@ components:
       - created
       - type
       - livemode
+      - billing_details
+      - customer
+      - customer_account
+      - metadata
       type: object
     SetupIntentPaymentMethodData:
       description: 'No type is public: inline card data is hidden from public /v1 (ADR 0004, amendment

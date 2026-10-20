@@ -7319,7 +7319,6 @@
         "properties": {
           "charge": {
             "maxLength": 5000,
-            "nullable": true,
             "type": "string"
           },
           "code": {
@@ -7528,7 +7527,6 @@
           },
           "param": {
             "maxLength": 5000,
-            "nullable": true,
             "type": "string"
           },
           "payment_method": {
@@ -7583,6 +7581,9 @@
       },
       "SetupIntentPaymentMethod": {
         "properties": {
+          "billing_details": {
+            "$ref": "#/components/schemas/StripePinned_billing_details"
+          },
           "card": {
             "nullable": true,
             "properties": {},
@@ -7592,12 +7593,37 @@
             "format": "unix-time",
             "type": "integer"
           },
+          "customer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StripePinned_customer"
+              },
+              {
+                "maxLength": 5000,
+                "type": "string"
+              }
+            ],
+            "nullable": true
+          },
+          "customer_account": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
           "id": {
             "maxLength": 5000,
             "type": "string"
           },
           "livemode": {
             "type": "boolean"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "maxLength": 500,
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "object"
           },
           "object": {
             "enum": [
@@ -7673,7 +7699,11 @@
           "object",
           "created",
           "type",
-          "livemode"
+          "livemode",
+          "billing_details",
+          "customer",
+          "customer_account",
+          "metadata"
         ],
         "type": "object"
       },

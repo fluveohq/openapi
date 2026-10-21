@@ -25,10 +25,24 @@ components:
       schema:
         type: string
     created:
+      explode: true
       in: query
       name: created
+      required: false
       schema:
-        type: integer
+        anyOf:
+        - properties:
+            gt:
+              type: integer
+            gte:
+              type: integer
+            lt:
+              type: integer
+            lte:
+              type: integer
+          type: object
+        - type: integer
+      style: deepObject
     customer:
       in: query
       name: customer
@@ -414,17 +428,13 @@ components:
         amount_refunded:
           type: integer
         application:
-          anyOf:
-          - $ref: '#/components/schemas/application'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         application_fee:
-          anyOf:
-          - $ref: '#/components/schemas/application_fee'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         application_fee_amount:
           nullable: true
           type: integer
@@ -465,11 +475,9 @@ components:
         disputed:
           type: boolean
         failure_balance_transaction:
-          anyOf:
-          - $ref: '#/components/schemas/balance_transaction'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         failure_code:
           maxLength: 5000
           nullable: true
@@ -501,11 +509,9 @@ components:
           - charge
           type: string
         on_behalf_of:
-          anyOf:
-          - $ref: '#/components/schemas/account'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         outcome:
           anyOf:
           - $ref: '#/components/schemas/charge_outcome'
@@ -569,11 +575,9 @@ components:
           - url
           type: object
         review:
-          anyOf:
-          - $ref: '#/components/schemas/review'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         shipping:
           anyOf:
           - $ref: '#/components/schemas/shipping'
@@ -583,11 +587,9 @@ components:
           - $ref: '#/components/schemas/payment_source'
           nullable: true
         source_transfer:
-          anyOf:
-          - $ref: '#/components/schemas/transfer'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         statement_descriptor:
           maxLength: 5000
           nullable: true
@@ -603,10 +605,8 @@ components:
           - succeeded
           type: string
         transfer:
-          anyOf:
-          - $ref: '#/components/schemas/transfer'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
+          type: string
         transfer_data:
           anyOf:
           - $ref: '#/components/schemas/charge_transfer_data'
@@ -893,11 +893,9 @@ components:
           nullable: true
           type: string
         invoice:
-          anyOf:
-          - $ref: '#/components/schemas/invoice'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         invoice_creation:
           anyOf:
           - $ref: '#/components/schemas/payment_pages_checkout_session_invoice_creation'
@@ -1011,11 +1009,9 @@ components:
             type: string
           nullable: true
         payment_link:
-          anyOf:
-          - $ref: '#/components/schemas/payment_link'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         payment_method_collection:
           enum:
           - always
@@ -1067,11 +1063,9 @@ components:
           - $ref: '#/components/schemas/payment_pages_checkout_session_saved_payment_method_options'
           nullable: true
         setup_intent:
-          anyOf:
-          - $ref: '#/components/schemas/setup_intent'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         shipping_address_collection:
           anyOf:
           - $ref: '#/components/schemas/payment_pages_checkout_session_shipping_address_collection'
@@ -1101,11 +1095,9 @@ components:
           nullable: true
           type: string
         subscription:
-          anyOf:
-          - $ref: '#/components/schemas/subscription'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         success_url:
           maxLength: 5000
           nullable: true
@@ -1497,7 +1489,10 @@ components:
         enabled:
           type: boolean
         required:
-          type: boolean
+          enum:
+          - if_supported
+          - never
+          type: string
       type: object
     CustomUnitAmount:
       additionalProperties: true
@@ -1543,11 +1538,9 @@ components:
           nullable: true
           type: string
         default_source:
-          anyOf:
-          - $ref: '#/components/schemas/payment_source'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         delinquent:
           nullable: true
           type: boolean
@@ -1686,11 +1679,9 @@ components:
           - url
           type: object
         test_clock:
-          anyOf:
-          - $ref: '#/components/schemas/test_helpers.test_clock'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
       required:
       - created
       - default_source
@@ -2952,11 +2943,9 @@ components:
         amount_received:
           type: integer
         application:
-          anyOf:
-          - $ref: '#/components/schemas/application'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         application_fee_amount:
           nullable: true
           type: integer
@@ -3113,11 +3102,9 @@ components:
           - payment_intent
           type: string
         on_behalf_of:
-          anyOf:
-          - $ref: '#/components/schemas/account'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         payment_details:
           $ref: '#/components/schemas/payment_flows_payment_details'
         payment_method:
@@ -3150,11 +3137,9 @@ components:
           nullable: true
           type: string
         review:
-          anyOf:
-          - $ref: '#/components/schemas/review'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         setup_future_usage:
           enum:
           - off_session
@@ -3166,12 +3151,9 @@ components:
           - $ref: '#/components/schemas/shipping'
           nullable: true
         source:
-          anyOf:
-          - $ref: '#/components/schemas/deleted_payment_source'
-          - $ref: '#/components/schemas/payment_source'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         statement_descriptor:
           maxLength: 5000
           nullable: true
@@ -3337,6 +3319,11 @@ components:
           type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
+        off_session:
+          type: boolean
+        payment_method:
+          maxLength: 5000
+          type: string
         payment_method_data:
           allOf:
           - $ref: '#/components/schemas/PaymentIntentPaymentMethodData'
@@ -3607,24 +3594,22 @@ components:
         phone_number_collection:
           $ref: '#/components/schemas/StripePinned_payment_links_resource_phone_number_collection'
         restrictions:
-          additionalProperties: false
           description: null when the link has no reuse limit. count is read-only (completed sales recorded
             by the ledger-bridge).
           nullable: true
           properties:
             completed_sessions:
-              additionalProperties: false
               properties:
                 count:
-                  minimum: 0
                   type: integer
                 limit:
-                  minimum: 1
                   type: integer
               required:
               - limit
               - count
               type: object
+          required:
+          - completed_sessions
           type: object
         shipping_address_collection:
           anyOf:
@@ -3670,6 +3655,7 @@ components:
       - custom_text
       - customer_creation
       - id
+      - inactive_message
       - invoice_creation
       - livemode
       - managed_payments
@@ -3679,9 +3665,12 @@ components:
       - payment_intent_data
       - payment_method_collection
       - payment_method_options
+      - payment_method_types
       - phone_number_collection
+      - restrictions
       - shipping_address_collection
       - shipping_options
+      - submit_type
       - subscription_data
       - tax_id_collection
       - transfer_data
@@ -4219,11 +4208,9 @@ components:
         custom:
           $ref: '#/components/schemas/payment_method_custom'
         customer:
-          anyOf:
-          - $ref: '#/components/schemas/customer'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         customer_account:
           maxLength: 5000
           nullable: true
@@ -4531,6 +4518,29 @@ components:
       - regulated_status
       - three_d_secure_usage
       - wallet
+      type: object
+    PaymentMethodCreate:
+      additionalProperties: false
+      description: 'Test mode, US stores: a card PaymentMethod with no customer from one documented Stripe
+        test token (ADR 0121). Raw card details (`card[number]`, `card[exp_month]`, `card[exp_year]`,
+        `card[cvc]`, `card[networks]`) are refused in either mode.'
+      properties:
+        card:
+          anyOf:
+          - properties:
+              token:
+                maxLength: 5000
+                type: string
+            required:
+            - token
+            title: token_params
+            type: object
+          description: Only the documented test token branch (`token_params`); Stripe's `card_details_params`
+            branch is raw card data and is refused.
+        type:
+          enum:
+          - card
+          type: string
       type: object
     PaymentMethodList:
       properties:
@@ -5024,21 +5034,17 @@ components:
           nullable: true
           type: string
         source_transfer_reversal:
-          anyOf:
-          - $ref: '#/components/schemas/transfer_reversal'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
         status:
           maxLength: 5000
           nullable: true
           type: string
         transfer_reversal:
-          anyOf:
-          - $ref: '#/components/schemas/transfer_reversal'
-          - maxLength: 5000
-            type: string
+          maxLength: 5000
           nullable: true
+          type: string
       required:
       - amount
       - balance_transaction
@@ -5060,6 +5066,9 @@ components:
       properties:
         amount:
           type: integer
+        charge:
+          maxLength: 5000
+          type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
         payment_intent:
@@ -5574,8 +5583,68 @@ components:
         billing_details:
           $ref: '#/components/schemas/StripePinned_billing_details'
         card:
-          nullable: true
-          properties: {}
+          properties:
+            brand:
+              maxLength: 5000
+              type: string
+            checks:
+              anyOf:
+              - $ref: '#/components/schemas/StripePinned_payment_method_card_checks'
+              nullable: true
+            country:
+              maxLength: 5000
+              nullable: true
+              type: string
+            display_brand:
+              maxLength: 5000
+              nullable: true
+              type: string
+            exp_month:
+              type: integer
+            exp_year:
+              type: integer
+            funding:
+              maxLength: 5000
+              type: string
+            generated_from:
+              anyOf:
+              - $ref: '#/components/schemas/StripePinned_payment_method_card_generated_card'
+              nullable: true
+            last4:
+              maxLength: 5000
+              type: string
+            networks:
+              anyOf:
+              - $ref: '#/components/schemas/StripePinned_networks'
+              nullable: true
+            regulated_status:
+              enum:
+              - regulated
+              - unregulated
+              nullable: true
+              type: string
+            three_d_secure_usage:
+              anyOf:
+              - $ref: '#/components/schemas/StripePinned_three_d_secure_usage'
+              nullable: true
+            wallet:
+              anyOf:
+              - $ref: '#/components/schemas/StripePinned_payment_method_card_wallet'
+              nullable: true
+          required:
+          - brand
+          - checks
+          - country
+          - display_brand
+          - exp_month
+          - exp_year
+          - funding
+          - generated_from
+          - last4
+          - networks
+          - regulated_status
+          - three_d_secure_usage
+          - wallet
           type: object
         created:
           format: unix-time
@@ -5714,12 +5783,14 @@ components:
       additionalProperties: true
       properties:
         code:
+          maxLength: 5000
           type: string
         decline_code:
           type: string
         doc_url:
           type: string
         message:
+          maxLength: 40000
           type: string
         param:
           type: string
@@ -5734,7 +5805,6 @@ components:
           type: string
       required:
       - type
-      - message
       type: object
     StripePinned_account:
       properties:
@@ -24444,6 +24514,136 @@ components:
       required:
       - enabled
       type: object
+    StripePinned_payment_pages_checkout_session_tax_id:
+      properties:
+        type:
+          enum:
+          - ad_nrt
+          - ae_trn
+          - al_tin
+          - am_tin
+          - ao_tin
+          - ar_cuit
+          - au_abn
+          - au_arn
+          - aw_tin
+          - az_tin
+          - ba_tin
+          - bb_tin
+          - bd_bin
+          - bf_ifu
+          - bg_uic
+          - bh_vat
+          - bj_ifu
+          - bo_tin
+          - br_cnpj
+          - br_cpf
+          - bs_tin
+          - by_tin
+          - ca_bn
+          - ca_gst_hst
+          - ca_pst_bc
+          - ca_pst_mb
+          - ca_pst_sk
+          - ca_qst
+          - cd_nif
+          - ch_uid
+          - ch_vat
+          - cl_tin
+          - cm_niu
+          - cn_tin
+          - co_nit
+          - cr_tin
+          - cv_nif
+          - de_stn
+          - do_rcn
+          - ec_ruc
+          - eg_tin
+          - es_cif
+          - et_tin
+          - eu_oss_vat
+          - eu_vat
+          - fo_vat
+          - gb_vat
+          - ge_vat
+          - gi_tin
+          - gn_nif
+          - hk_br
+          - hr_oib
+          - hu_tin
+          - id_npwp
+          - il_vat
+          - in_gst
+          - is_vat
+          - it_cf
+          - jp_cn
+          - jp_rn
+          - jp_trn
+          - ke_pin
+          - kg_tin
+          - kh_tin
+          - kr_brn
+          - kz_bin
+          - la_tin
+          - li_uid
+          - li_vat
+          - lk_vat
+          - ma_vat
+          - md_vat
+          - me_pib
+          - mk_vat
+          - mr_nif
+          - mx_rfc
+          - my_frp
+          - my_itn
+          - my_sst
+          - ng_tin
+          - no_vat
+          - no_voec
+          - np_pan
+          - nz_gst
+          - om_vat
+          - pe_ruc
+          - ph_tin
+          - pl_nip
+          - py_ruc
+          - ro_tin
+          - rs_pib
+          - ru_inn
+          - ru_kpp
+          - sa_vat
+          - sg_gst
+          - sg_uen
+          - si_tin
+          - sn_ninea
+          - sr_fin
+          - sv_nit
+          - th_vat
+          - tj_tin
+          - tr_tin
+          - tw_vat
+          - tz_vat
+          - ua_vat
+          - ug_tin
+          - unknown
+          - us_ein
+          - uy_ruc
+          - uz_tin
+          - uz_vat
+          - ve_rif
+          - vn_tin
+          - za_vat
+          - zm_tin
+          - zw_tin
+          type: string
+        value:
+          maxLength: 5000
+          nullable: true
+          type: string
+      required:
+      - type
+      - value
+      type: object
     StripePinned_payment_record:
       properties:
         amount:
@@ -32374,15 +32574,19 @@ components:
       - application
       - description
       type: object
-    account:
-      type: object
     address:
       type: object
     api_errors:
-      type: object
-    application:
-      type: object
-    application_fee:
+      properties:
+        type:
+          enum:
+          - api_error
+          - card_error
+          - idempotency_error
+          - invalid_request_error
+          type: string
+      required:
+      - type
       type: object
     automatic_tax:
       properties:
@@ -32417,6 +32621,15 @@ components:
       - status
       type: object
     balance_amount:
+      properties:
+        amount:
+          type: integer
+        currency:
+          format: currency
+          type: string
+      required:
+      - amount
+      - currency
       type: object
     balance_amount_net:
       type: object
@@ -32425,6 +32638,128 @@ components:
     balance_detail_ungated:
       type: object
     balance_transaction:
+      properties:
+        amount:
+          type: integer
+        available_on:
+          format: unix-time
+          type: integer
+        balance_type:
+          enum:
+          - issuing
+          - payments
+          - refund_and_dispute_prefunding
+          - risk_reserved
+          type: string
+        created:
+          format: unix-time
+          type: integer
+        currency:
+          format: currency
+          type: string
+        description:
+          maxLength: 5000
+          nullable: true
+          type: string
+        exchange_rate:
+          nullable: true
+          type: number
+        fee:
+          type: integer
+        fee_details:
+          items:
+            $ref: '#/components/schemas/StripePinned_fee'
+          type: array
+        id:
+          maxLength: 5000
+          type: string
+        net:
+          type: integer
+        object:
+          enum:
+          - balance_transaction
+          type: string
+        reporting_category:
+          maxLength: 5000
+          type: string
+        source:
+          anyOf:
+          - $ref: '#/components/schemas/StripePinned_balance_transaction_source'
+          - maxLength: 5000
+            type: string
+          nullable: true
+        status:
+          maxLength: 5000
+          type: string
+        type:
+          enum:
+          - adjustment
+          - advance
+          - advance_funding
+          - anticipation_repayment
+          - application_fee
+          - application_fee_refund
+          - charge
+          - climate_order_purchase
+          - climate_order_refund
+          - connect_collection_transfer
+          - contribution
+          - fee_credit_funding
+          - inbound_transfer
+          - inbound_transfer_reversal
+          - issuing_authorization_hold
+          - issuing_authorization_release
+          - issuing_dispute
+          - issuing_transaction
+          - obligation_outbound
+          - obligation_reversal_inbound
+          - payment
+          - payment_failure_refund
+          - payment_network_reserve_hold
+          - payment_network_reserve_release
+          - payment_refund
+          - payment_reversal
+          - payment_unreconciled
+          - payout
+          - payout_cancel
+          - payout_failure
+          - payout_minimum_balance_hold
+          - payout_minimum_balance_release
+          - refund
+          - refund_failure
+          - reserve_hold
+          - reserve_release
+          - reserve_transaction
+          - reserved_funds
+          - stripe_balance_payment_debit
+          - stripe_balance_payment_debit_reversal
+          - stripe_fee
+          - stripe_fx_fee
+          - tax_fee
+          - topup
+          - topup_reversal
+          - transfer
+          - transfer_cancel
+          - transfer_failure
+          - transfer_refund
+          type: string
+      required:
+      - amount
+      - available_on
+      - balance_type
+      - created
+      - currency
+      - description
+      - exchange_rate
+      - fee
+      - fee_details
+      - id
+      - net
+      - object
+      - reporting_category
+      - source
+      - status
+      - type
       type: object
     balance_transaction_source:
       type: object
@@ -32677,11 +33012,31 @@ components:
       type: object
     billing_details:
       properties:
+        address:
+          anyOf:
+          - $ref: '#/components/schemas/StripePinned_address'
+          nullable: true
+        email:
+          maxLength: 5000
+          nullable: true
+          type: string
+        name:
+          maxLength: 5000
+          nullable: true
+          type: string
+        phone:
+          maxLength: 5000
+          nullable: true
+          type: string
         tax_id:
           maxLength: 5000
           nullable: true
           type: string
       required:
+      - address
+      - email
+      - name
+      - phone
       - tax_id
       type: object
     cancellation_details:
@@ -32801,8 +33156,6 @@ components:
       type: object
     deleted_customer:
       type: object
-    deleted_payment_source:
-      type: object
     discount:
       type: object
     discounts_resource_discount_amount:
@@ -32820,10 +33173,31 @@ components:
     dispute:
       type: object
     fee:
+      properties:
+        amount:
+          type: integer
+        application:
+          maxLength: 5000
+          nullable: true
+          type: string
+        currency:
+          format: currency
+          type: string
+        description:
+          maxLength: 5000
+          nullable: true
+          type: string
+        type:
+          maxLength: 5000
+          type: string
+      required:
+      - amount
+      - application
+      - currency
+      - description
+      - type
       type: object
     fee_refund:
-      type: object
-    invoice:
       type: object
     invoice_installments_card:
       properties:
@@ -33338,6 +33712,157 @@ components:
     issuing.transaction:
       type: object
     item:
+      properties:
+        adjustable_quantity:
+          anyOf:
+          - $ref: '#/components/schemas/StripePinned_line_items_adjustable_quantity'
+          nullable: true
+        amount_discount:
+          type: integer
+        amount_subtotal:
+          type: integer
+        amount_tax:
+          type: integer
+        amount_total:
+          type: integer
+        currency:
+          format: currency
+          type: string
+        id:
+          maxLength: 5000
+          type: string
+        metadata:
+          additionalProperties:
+            maxLength: 500
+            type: string
+          nullable: true
+          type: object
+        object:
+          enum:
+          - item
+          type: string
+        price:
+          nullable: true
+          properties:
+            active:
+              type: boolean
+            billing_scheme:
+              enum:
+              - per_unit
+              - tiered
+              type: string
+            created:
+              format: unix-time
+              type: integer
+            currency:
+              format: currency
+              type: string
+            currency_options:
+              additionalProperties:
+                $ref: '#/components/schemas/StripePinned_currency_option'
+              type: object
+            custom_unit_amount:
+              anyOf:
+              - $ref: '#/components/schemas/StripePinned_custom_unit_amount'
+              nullable: true
+            id:
+              maxLength: 5000
+              type: string
+            livemode:
+              type: boolean
+            lookup_key:
+              maxLength: 5000
+              nullable: true
+              type: string
+            metadata:
+              additionalProperties:
+                maxLength: 500
+                type: string
+              type: object
+            nickname:
+              maxLength: 5000
+              nullable: true
+              type: string
+            object:
+              enum:
+              - price
+              type: string
+            product:
+              maxLength: 5000
+              type: string
+            recurring:
+              anyOf:
+              - $ref: '#/components/schemas/StripePinned_recurring'
+              nullable: true
+            tax_behavior:
+              enum:
+              - exclusive
+              - inclusive
+              - unspecified
+              nullable: true
+              type: string
+            tiers:
+              items:
+                $ref: '#/components/schemas/StripePinned_price_tier'
+              type: array
+            tiers_mode:
+              enum:
+              - graduated
+              - volume
+              nullable: true
+              type: string
+            transform_quantity:
+              anyOf:
+              - $ref: '#/components/schemas/StripePinned_transform_quantity'
+              nullable: true
+            type:
+              enum:
+              - one_time
+              - recurring
+              type: string
+            unit_amount:
+              nullable: true
+              type: integer
+            unit_amount_decimal:
+              format: decimal
+              nullable: true
+              type: string
+          required:
+          - active
+          - billing_scheme
+          - created
+          - currency
+          - custom_unit_amount
+          - id
+          - livemode
+          - lookup_key
+          - metadata
+          - nickname
+          - object
+          - product
+          - recurring
+          - tax_behavior
+          - tiers_mode
+          - transform_quantity
+          - type
+          - unit_amount
+          - unit_amount_decimal
+          type: object
+        quantity:
+          nullable: true
+          type: integer
+      required:
+      - adjustable_quantity
+      - amount_discount
+      - amount_subtotal
+      - amount_tax
+      - amount_total
+      - currency
+      - id
+      - metadata
+      - object
+      - price
+      - quantity
       type: object
     level3:
       type: object
@@ -33484,6 +34009,15 @@ components:
     payment_flows_payment_intent_async_workflows:
       type: object
     payment_flows_payment_intent_presentment_details:
+      properties:
+        presentment_amount:
+          type: integer
+        presentment_currency:
+          maxLength: 5000
+          type: string
+      required:
+      - presentment_amount
+      - presentment_currency
       type: object
     payment_flows_private_payment_methods_alipay:
       type: object
@@ -33512,12 +34046,15 @@ components:
       - statement_descriptor_suffix
       type: object
     payment_intent_next_action:
-      description: 'Closed public union: exactly one `type` discriminator plus its matching branch. `pix_display_qr_code`
-        carries only the EMV copy-and-paste payload, an optional PNG data URL and the provider expiry;
-        never a provider URL, txid or connector QR metadata.'
+      description: 'Closed public union: exactly one `type` discriminator plus its matching branch (`pix_display_qr_code`,
+        `boleto_display_details` or `redirect_to_url`). `pix_display_qr_code` carries only the EMV copy-and-paste
+        payload, an optional PNG data URL and the provider expiry; never a provider URL, txid or connector
+        QR metadata. `boleto_display_details` carries exactly Stripe''s four voucher keys.'
       maxProperties: 2
       minProperties: 2
       properties:
+        boleto_display_details:
+          $ref: '#/components/schemas/StripePinned_payment_intent_next_action_boleto'
         pix_display_qr_code:
           properties:
             data:
@@ -33548,20 +34085,23 @@ components:
               maxLength: 5000
               nullable: true
               type: string
+            url:
+              maxLength: 5000
+              nullable: true
+              type: string
           required:
           - return_url
+          - url
           type: object
         type:
-          enum:
-          - pix_display_qr_code
-          - redirect_to_url
+          maxLength: 5000
           type: string
+      required:
+      - type
       type: object
     payment_intent_payment_method_options:
       type: object
     payment_intent_processing:
-      type: object
-    payment_link:
       type: object
     payment_method:
       type: object
@@ -33971,6 +34511,52 @@ components:
       - message
       type: object
     payment_pages_checkout_session_customer_details:
+      properties:
+        address:
+          anyOf:
+          - $ref: '#/components/schemas/StripePinned_address'
+          nullable: true
+        business_name:
+          maxLength: 150
+          nullable: true
+          type: string
+        email:
+          maxLength: 5000
+          nullable: true
+          type: string
+        individual_name:
+          maxLength: 150
+          nullable: true
+          type: string
+        name:
+          maxLength: 5000
+          nullable: true
+          type: string
+        phone:
+          maxLength: 5000
+          nullable: true
+          type: string
+        tax_exempt:
+          enum:
+          - exempt
+          - none
+          - reverse
+          nullable: true
+          type: string
+        tax_ids:
+          items:
+            $ref: '#/components/schemas/StripePinned_payment_pages_checkout_session_tax_id'
+          nullable: true
+          type: array
+      required:
+      - address
+      - business_name
+      - email
+      - individual_name
+      - name
+      - phone
+      - tax_exempt
+      - tax_ids
       type: object
     payment_pages_checkout_session_discount:
       type: object
@@ -33991,12 +34577,51 @@ components:
     payment_pages_checkout_session_shipping_address_collection:
       type: object
     payment_pages_checkout_session_shipping_cost:
+      properties:
+        amount_subtotal:
+          type: integer
+        amount_tax:
+          type: integer
+        amount_total:
+          type: integer
+        shipping_rate:
+          maxLength: 5000
+          nullable: true
+          type: string
+      required:
+      - amount_subtotal
+      - amount_tax
+      - amount_total
+      - shipping_rate
       type: object
     payment_pages_checkout_session_shipping_option:
       type: object
     payment_pages_checkout_session_tax_id_collection:
+      properties:
+        enabled:
+          type: boolean
+        required:
+          enum:
+          - if_supported
+          - never
+          type: string
+      required:
+      - enabled
+      - required
       type: object
     payment_pages_checkout_session_total_details:
+      properties:
+        amount_discount:
+          type: integer
+        amount_shipping:
+          nullable: true
+          type: integer
+        amount_tax:
+          type: integer
+      required:
+      - amount_discount
+      - amount_shipping
+      - amount_tax
       type: object
     payment_source:
       type: object
@@ -34313,16 +34938,180 @@ components:
       - usage_type
       type: object
     refund:
+      properties:
+        amount:
+          type: integer
+        balance_transaction:
+          maxLength: 5000
+          nullable: true
+          type: string
+        charge:
+          maxLength: 5000
+          nullable: true
+          type: string
+        created:
+          format: unix-time
+          type: integer
+        currency:
+          format: currency
+          type: string
+        failure_reason:
+          maxLength: 5000
+          type: string
+        id:
+          maxLength: 5000
+          type: string
+        metadata:
+          additionalProperties:
+            maxLength: 500
+            type: string
+          nullable: true
+          type: object
+        object:
+          enum:
+          - refund
+          type: string
+        payment_intent:
+          maxLength: 5000
+          nullable: true
+          type: string
+        pending_reason:
+          enum:
+          - charge_pending
+          - insufficient_funds
+          - processing
+          type: string
+        reason:
+          enum:
+          - duplicate
+          - expired_uncaptured_charge
+          - fraudulent
+          - requested_by_customer
+          nullable: true
+          type: string
+        receipt_number:
+          maxLength: 5000
+          nullable: true
+          type: string
+        source_transfer_reversal:
+          maxLength: 5000
+          nullable: true
+          type: string
+        status:
+          maxLength: 5000
+          nullable: true
+          type: string
+        transfer_reversal:
+          maxLength: 5000
+          nullable: true
+          type: string
+      required:
+      - amount
+      - balance_transaction
+      - charge
+      - created
+      - currency
+      - id
+      - metadata
+      - object
+      - payment_intent
+      - reason
+      - receipt_number
+      - source_transfer_reversal
+      - status
+      - transfer_reversal
       type: object
     refund_destination_details:
+      properties:
+        affirm:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        afterpay_clearpay:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        alipay:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        alma:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        amazon_pay:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        au_bank_transfer:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        blik:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_blik'
+        br_bank_transfer:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_br_bank_transfer'
+        card:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_card'
+        cashapp:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        crypto:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_crypto'
+        customer_cash_balance:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        eps:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        eu_bank_transfer:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_eu_bank_transfer'
+        gb_bank_transfer:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_gb_bank_transfer'
+        giropay:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        grabpay:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        jp_bank_transfer:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_jp_bank_transfer'
+        klarna:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        mb_way:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_mb_way'
+        multibanco:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_multibanco'
+        mx_bank_transfer:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_mx_bank_transfer'
+        nz_bank_transfer:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        p24:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_p24'
+        paynow:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        paypal:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_paypal'
+        pix:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        revolut:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        scalapay:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        sofort:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        swish:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_swish'
+        th_bank_transfer:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_th_bank_transfer'
+        twint:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        type:
+          maxLength: 5000
+          type: string
+        us_bank_transfer:
+          $ref: '#/components/schemas/StripePinned_refund_destination_details_us_bank_transfer'
+        wechat_pay:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+        zip:
+          $ref: '#/components/schemas/StripePinned_destination_details_unimplemented'
+      required:
+      - type
       type: object
     refund_next_action:
+      properties:
+        display_details:
+          $ref: '#/components/schemas/StripePinned_refund_next_action_display_details'
+        type:
+          maxLength: 5000
+          type: string
+      required:
+      - type
       type: object
     reserve_transaction:
-      type: object
-    review:
-      type: object
-    setup_intent:
       type: object
     shipping:
       type: object
@@ -34963,8 +35752,6 @@ components:
       - amount
       - currency
       type: object
-    test_helpers.test_clock:
-      type: object
     three_d_secure_details_charge:
       properties:
         authentication_flow:
@@ -35037,11 +35824,7 @@ components:
       type: object
     topup:
       type: object
-    transfer:
-      type: object
     transfer_data:
-      type: object
-    transfer_reversal:
       type: object
     transform_quantity:
       properties:
@@ -35811,6 +36594,21 @@ paths:
       description: List invoices in created-desc order, merchant-scoped. Returns up to the service's fixed
         page size; limit/starting_after/ending_before are not honored on this surface yet.
       operationId: listInvoices
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+      - in: query
+        name: starting_after
+        schema:
+          maxLength: 5000
+          type: string
+      - in: query
+        name: ending_before
+        schema:
+          maxLength: 5000
+          type: string
       responses:
         '200':
           content:
@@ -35961,6 +36759,9 @@ paths:
           application/x-www-form-urlencoded:
             encoding:
               metadata:
+                explode: true
+                style: deepObject
+              off_session:
                 explode: true
                 style: deepObject
               payment_method_data:
@@ -36371,6 +37172,44 @@ paths:
         lifecycle: served
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/payment_methods
+    post:
+      description: US stores, test mode only. Creates a card PaymentMethod with no customer from a documented
+        Stripe test token (`card[token]`), which `attach` can then give a customer. Raw card details are
+        refused in either mode with HTTP 402. Idempotency-Key durably binds the merchant, mode, operation
+        and body for 24-hour byte-identical replay, and a keyed create writes one card.
+      operationId: createPaymentMethod
+      parameters:
+      - $ref: '#/components/parameters/idempotencyKey'
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            encoding:
+              card:
+                explode: true
+                style: deepObject
+            schema:
+              $ref: '#/components/schemas/PaymentMethodCreate'
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethod'
+          description: Stripe-compatible response
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Stripe-compatible error response
+      x-fluveo-compatibility:
+        audience: merchant_public
+        auth_policy: stripe_secret_key
+        idempotency_policy: required_on_retryable_write
+        lifecycle: served
+        mode_policy: test_only
+        stripe_reference: https://docs.stripe.com/api/payment_methods
   /v1/payment_methods/{payment_method_id}:
     get:
       description: Retrieve one saved card from the authenticated merchant and mode masked projection.
@@ -36480,6 +37319,16 @@ paths:
       description: List prices in created-desc order, merchant-scoped. Returns up to the service's fixed
         page size; limit/starting_after/ending_before are not honored on this surface yet.
       operationId: listPrices
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+      - in: query
+        name: starting_after
+        schema:
+          maxLength: 5000
+          type: string
       responses:
         '200':
           content:
@@ -36606,6 +37455,16 @@ paths:
       description: List products in created-desc order, merchant-scoped. Returns up to the service's fixed
         page size; limit/starting_after/ending_before are not honored on this surface yet.
       operationId: listProducts
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+      - in: query
+        name: starting_after
+        schema:
+          maxLength: 5000
+          type: string
       responses:
         '200':
           content:
@@ -37122,6 +37981,21 @@ paths:
       description: List subscriptions in created-desc order, merchant-scoped. Returns up to the service's
         fixed page size; limit/starting_after/ending_before are not honored on this surface yet.
       operationId: listSubscriptions
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+      - in: query
+        name: starting_after
+        schema:
+          maxLength: 5000
+          type: string
+      - in: query
+        name: ending_before
+        schema:
+          maxLength: 5000
+          type: string
       responses:
         '200':
           content:

@@ -3273,7 +3273,7 @@
             "type": "string"
           },
           "currency": {
-            "description": "Three-letter ISO code, lowercase. Defaults to the pending items' currency, else usd. Must match every pending invoice item; otherwise a 400 currency_mismatch.",
+            "description": "Three-letter ISO code, lowercase. Omitted, it defaults to the pending items' currency, else the account's currency (usd when unknown). An empty value is refused with a 400, param=currency. Must match every pending invoice item; otherwise a 400 currency_mismatch.",
             "format": "currency",
             "type": "string"
           },
@@ -3308,10 +3308,26 @@
       "InvoiceItem": {
         "additionalProperties": true,
         "properties": {
+          "amount": {
+            "type": "integer"
+          },
+          "currency": {
+            "format": "currency",
+            "type": "string"
+          },
           "customer": {
             "type": "string"
           },
           "customer_account": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "date": {
+            "format": "unix-time",
+            "type": "integer"
+          },
+          "description": {
             "maxLength": 5000,
             "nullable": true,
             "type": "string"
@@ -3333,6 +3349,11 @@
           },
           "id": {
             "maxLength": 5000,
+            "type": "string"
+          },
+          "invoice": {
+            "maxLength": 5000,
+            "nullable": true,
             "type": "string"
           },
           "livemode": {
@@ -3360,6 +3381,9 @@
             ],
             "nullable": true
           },
+          "period": {
+            "$ref": "#/components/schemas/invoice_line_item_period"
+          },
           "pricing": {
             "anyOf": [
               {
@@ -3370,6 +3394,13 @@
           },
           "proration": {
             "type": "boolean"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "quantity_decimal": {
+            "format": "decimal",
+            "type": "string"
           },
           "tax_rates": {
             "items": {
@@ -3401,7 +3432,15 @@
           "pricing",
           "proration",
           "tax_rates",
-          "test_clock"
+          "test_clock",
+          "amount",
+          "currency",
+          "date",
+          "description",
+          "invoice",
+          "period",
+          "quantity",
+          "quantity_decimal"
         ],
         "type": "object"
       },
@@ -3414,7 +3453,7 @@
             "type": "integer"
           },
           "currency": {
-            "description": "Three-letter ISO code, lowercase, for an amount item. Defaults to usd; a price item takes the price's currency.",
+            "description": "Three-letter ISO code, lowercase, for an amount item. Omitted, it defaults to the account's currency (usd when unknown); a price item takes the price's currency. An empty value is refused with a 400, param=currency.",
             "format": "currency",
             "type": "string"
           },

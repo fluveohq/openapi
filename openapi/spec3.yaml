@@ -2421,8 +2421,9 @@ components:
           - send_invoice
           type: string
         currency:
-          description: Three-letter ISO code, lowercase. Defaults to the pending items' currency, else
-            usd. Must match every pending invoice item; otherwise a 400 currency_mismatch.
+          description: Three-letter ISO code, lowercase. Omitted, it defaults to the pending items' currency,
+            else the account's currency (usd when unknown). An empty value is refused with a 400, param=currency.
+            Must match every pending invoice item; otherwise a 400 currency_mismatch.
           format: currency
           type: string
         customer:
@@ -2449,9 +2450,21 @@ components:
     InvoiceItem:
       additionalProperties: true
       properties:
+        amount:
+          type: integer
+        currency:
+          format: currency
+          type: string
         customer:
           type: string
         customer_account:
+          maxLength: 5000
+          nullable: true
+          type: string
+        date:
+          format: unix-time
+          type: integer
+        description:
           maxLength: 5000
           nullable: true
           type: string
@@ -2466,6 +2479,10 @@ components:
           type: array
         id:
           maxLength: 5000
+          type: string
+        invoice:
+          maxLength: 5000
+          nullable: true
           type: string
         livemode:
           type: boolean
@@ -2483,12 +2500,19 @@ components:
           anyOf:
           - $ref: '#/components/schemas/billing_bill_resource_invoice_item_parents_invoice_item_parent'
           nullable: true
+        period:
+          $ref: '#/components/schemas/invoice_line_item_period'
         pricing:
           anyOf:
           - $ref: '#/components/schemas/billing_bill_resource_invoicing_pricing_pricing'
           nullable: true
         proration:
           type: boolean
+        quantity:
+          type: integer
+        quantity_decimal:
+          format: decimal
+          type: string
         tax_rates:
           items:
             $ref: '#/components/schemas/tax_rate'
@@ -2513,6 +2537,14 @@ components:
       - proration
       - tax_rates
       - test_clock
+      - amount
+      - currency
+      - date
+      - description
+      - invoice
+      - period
+      - quantity
+      - quantity_decimal
       type: object
     InvoiceItemCreate:
       additionalProperties: false
@@ -2522,8 +2554,9 @@ components:
           description: Smallest currency unit (minor units / cents).
           type: integer
         currency:
-          description: Three-letter ISO code, lowercase, for an amount item. Defaults to usd; a price
-            item takes the price's currency.
+          description: Three-letter ISO code, lowercase, for an amount item. Omitted, it defaults to the
+            account's currency (usd when unknown); a price item takes the price's currency. An empty value
+            is refused with a 400, param=currency.
           format: currency
           type: string
         customer:

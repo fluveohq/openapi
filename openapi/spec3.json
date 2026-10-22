@@ -4573,6 +4573,11 @@
             ],
             "type": "string"
           },
+          "statement_descriptor": {
+            "description": "Pix and Boleto PaymentIntents only (the descriptor of a non-card charge, FLU-513); the payer sees `<statement_descriptor> · pagamento processado por Fluveo`. A card PaymentIntent refuses it; use `statement_descriptor_suffix`. Empty and `< > \\ ' \" *` are refused.",
+            "maxLength": 22,
+            "type": "string"
+          },
           "statement_descriptor_suffix": {
             "type": "string"
           }
@@ -4733,6 +4738,11 @@
               "off_session",
               "on_session"
             ],
+            "type": "string"
+          },
+          "statement_descriptor": {
+            "description": "Before confirm, on a Pix or Boleto PaymentIntent only (FLU-513). Empty and `< > \\ ' \" *` are refused; a card PaymentIntent refuses it.",
+            "maxLength": 22,
             "type": "string"
           },
           "statement_descriptor_suffix": {

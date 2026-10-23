@@ -3282,7 +3282,7 @@
             "type": "string"
           },
           "currency": {
-            "description": "Three-letter ISO code, lowercase. Omitted, it defaults to the pending items' currency, else the account's currency (usd when unknown). An empty value is refused with a 400, param=currency. Must match every pending invoice item; otherwise a 400 currency_mismatch.",
+            "description": "Three-letter ISO code, lowercase. Omitted, it defaults to the pending items' currency, else the account's currency (usd when unknown). An empty value is refused with a 400, param=currency. Must match every pending invoice item; otherwise a 400 invalid_request_error with no param (Stripe instead creates the invoice and leaves the item pending; see divergences).",
             "format": "currency",
             "type": "string"
           },
@@ -3458,7 +3458,7 @@
         "description": "Add a pending item to a customer's next invoice. Sent as application/x-www-form-urlencoded.",
         "properties": {
           "amount": {
-            "description": "Smallest currency unit (minor units / cents).",
+            "description": "Line total in minor units; non-negative. Sending it with quantity is refused like Stripe: 400 invalid_request_error, param=amount, 'You may only specify one of these parameters: amount, quantity.'",
             "type": "integer"
           },
           "currency": {
@@ -3473,14 +3473,14 @@
             "type": "string"
           },
           "invoice": {
-            "description": "Attach the item to this draft invoice of the same customer instead of leaving it pending. The item currency must match the invoice currency; otherwise a 400 currency_mismatch.",
+            "description": "Attach the item to this draft invoice of the same customer instead of leaving it pending. The item currency must match the invoice currency; otherwise a 400 invalid_request_error with no param and Stripe's 'You cannot combine currencies on a single invoice…' message.",
             "type": "string"
           },
           "metadata": {
             "$ref": "#/components/schemas/Metadata"
           },
           "quantity": {
-            "description": "Positive multiplier applied to amount or the price's unit amount. Defaults to 1.",
+            "description": "Not accepted together with amount (400 param=amount, as Stripe). Public /v1 offers no price-based item, so quantity has no accepted use today.",
             "type": "integer"
           }
         },

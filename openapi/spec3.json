@@ -49210,7 +49210,7 @@
           "auth_policy": "stripe_secret_key",
           "idempotency_policy": "not_applicable",
           "lifecycle": "served",
-          "mode_policy": "test_only",
+          "mode_policy": "test_and_live",
           "stripe_reference": "https://docs.stripe.com/api/balance"
         }
       }
@@ -49318,7 +49318,7 @@
           "auth_policy": "stripe_secret_key",
           "idempotency_policy": "not_applicable",
           "lifecycle": "served",
-          "mode_policy": "test_only",
+          "mode_policy": "test_and_live",
           "stripe_reference": "https://docs.stripe.com/api/balance_transactions"
         }
       }
@@ -49358,7 +49358,7 @@
           "auth_policy": "stripe_secret_key",
           "idempotency_policy": "not_applicable",
           "lifecycle": "served",
-          "mode_policy": "test_only",
+          "mode_policy": "test_and_live",
           "stripe_reference": "https://docs.stripe.com/api/balance_transactions"
         }
       }
@@ -49410,7 +49410,7 @@
           "auth_policy": "stripe_secret_key",
           "idempotency_policy": "not_applicable",
           "lifecycle": "served",
-          "mode_policy": "test_only",
+          "mode_policy": "test_and_live",
           "stripe_reference": "https://docs.stripe.com/api/charges"
         }
       }
@@ -50553,7 +50553,7 @@
           "auth_policy": "stripe_secret_key",
           "idempotency_policy": "not_applicable",
           "lifecycle": "served",
-          "mode_policy": "test_only",
+          "mode_policy": "test_and_live",
           "stripe_reference": "https://docs.stripe.com/api/payment_intents"
         }
       },
@@ -51989,7 +51989,7 @@
           "auth_policy": "stripe_secret_key",
           "idempotency_policy": "not_applicable",
           "lifecycle": "served",
-          "mode_policy": "test_only",
+          "mode_policy": "test_and_live",
           "stripe_reference": "https://docs.stripe.com/api/refunds"
         }
       },

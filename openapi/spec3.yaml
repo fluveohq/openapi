@@ -36046,7 +36046,7 @@ paths:
         auth_policy: stripe_secret_key
         idempotency_policy: not_applicable
         lifecycle: served
-        mode_policy: test_only
+        mode_policy: test_and_live
         stripe_reference: https://docs.stripe.com/api/balance
   /v1/balance_transactions:
     get:
@@ -36125,7 +36125,7 @@ paths:
         auth_policy: stripe_secret_key
         idempotency_policy: not_applicable
         lifecycle: served
-        mode_policy: test_only
+        mode_policy: test_and_live
         stripe_reference: https://docs.stripe.com/api/balance_transactions
   /v1/balance_transactions/{id}:
     get:
@@ -36150,7 +36150,7 @@ paths:
         auth_policy: stripe_secret_key
         idempotency_policy: not_applicable
         lifecycle: served
-        mode_policy: test_only
+        mode_policy: test_and_live
         stripe_reference: https://docs.stripe.com/api/balance_transactions
   /v1/charges:
     get:
@@ -36179,7 +36179,7 @@ paths:
         auth_policy: stripe_secret_key
         idempotency_policy: not_applicable
         lifecycle: served
-        mode_policy: test_only
+        mode_policy: test_and_live
         stripe_reference: https://docs.stripe.com/api/charges
   /v1/charges/{charge}:
     get:
@@ -36901,7 +36901,7 @@ paths:
         auth_policy: stripe_secret_key
         idempotency_policy: not_applicable
         lifecycle: served
-        mode_policy: test_only
+        mode_policy: test_and_live
         stripe_reference: https://docs.stripe.com/api/payment_intents
     post:
       operationId: createPaymentIntent
@@ -37830,7 +37830,7 @@ paths:
         auth_policy: stripe_secret_key
         idempotency_policy: not_applicable
         lifecycle: served
-        mode_policy: test_only
+        mode_policy: test_and_live
         stripe_reference: https://docs.stripe.com/api/refunds
     post:
       operationId: createRefund

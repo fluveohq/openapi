@@ -2909,6 +2909,14 @@
             "nullable": true,
             "type": "string"
           },
+          "customer_address": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StripePinned_address"
+              }
+            ],
+            "nullable": true
+          },
           "customer_email": {
             "maxLength": 5000,
             "nullable": true,
@@ -3257,7 +3265,8 @@
           "total_pretax_credit_amounts",
           "total_taxes",
           "webhooks_delivered_at",
-          "footer"
+          "footer",
+          "customer_address"
         ],
         "type": "object"
       },
@@ -3560,7 +3569,7 @@
       },
       "InvoiceSummary": {
         "additionalProperties": true,
-        "description": "Abbreviated invoice confirmation returned by finalize and pay (the billing service's invoice_json shape). Retrieve the invoice for the full object with customer, collection_method, and lines.",
+        "description": "Invoice returned by finalize (the billing service's invoice object, the same body as create and retrieve).",
         "properties": {
           "account_country": {
             "maxLength": 5000,
@@ -3655,10 +3664,23 @@
             "nullable": true,
             "type": "array"
           },
+          "customer": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
           "customer_account": {
             "maxLength": 5000,
             "nullable": true,
             "type": "string"
+          },
+          "customer_address": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StripePinned_address"
+              }
+            ],
+            "nullable": true
           },
           "customer_email": {
             "maxLength": 5000,
@@ -3766,6 +3788,36 @@
               }
             ],
             "nullable": true
+          },
+          "lines": {
+            "properties": {
+              "data": {
+                "items": {
+                  "$ref": "#/components/schemas/line_item"
+                },
+                "type": "array"
+              },
+              "has_more": {
+                "type": "boolean"
+              },
+              "object": {
+                "enum": [
+                  "list"
+                ],
+                "type": "string"
+              },
+              "url": {
+                "maxLength": 5000,
+                "type": "string"
+              }
+            },
+            "required": [
+              "data",
+              "has_more",
+              "object",
+              "url"
+            ],
+            "type": "object"
           },
           "livemode": {
             "type": "boolean"
@@ -3970,7 +4022,10 @@
           "total_excluding_tax",
           "total_pretax_credit_amounts",
           "total_taxes",
-          "webhooks_delivered_at"
+          "webhooks_delivered_at",
+          "customer",
+          "customer_address",
+          "lines"
         ],
         "type": "object"
       },
@@ -43193,6 +43248,11 @@
             "nullable": true,
             "type": "integer"
           },
+          "default_payment_method": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
           "default_source": {
             "anyOf": [
               {
@@ -43432,7 +43492,8 @@
           "test_clock",
           "transfer_data",
           "trial_settings",
-          "trial_start"
+          "trial_start",
+          "default_payment_method"
         ],
         "type": "object"
       },
@@ -43509,6 +43570,14 @@
             ],
             "nullable": true
           },
+          "current_period_end": {
+            "format": "unix-time",
+            "type": "integer"
+          },
+          "current_period_start": {
+            "format": "unix-time",
+            "type": "integer"
+          },
           "discounts": {
             "items": {
               "anyOf": [
@@ -43575,7 +43644,9 @@
           "metadata",
           "plan",
           "subscription",
-          "tax_rates"
+          "tax_rates",
+          "current_period_end",
+          "current_period_start"
         ],
         "type": "object"
       },
@@ -44414,6 +44485,46 @@
         "type": "object"
       },
       "address": {
+        "properties": {
+          "city": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "country": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "line1": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "line2": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "postal_code": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "state": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "city",
+          "country",
+          "line1",
+          "line2",
+          "postal_code",
+          "state"
+        ],
         "type": "object"
       },
       "api_errors": {
@@ -45691,6 +45802,39 @@
         "type": "object"
       },
       "invoice_setting_customer_setting": {
+        "properties": {
+          "custom_fields": {
+            "items": {
+              "$ref": "#/components/schemas/invoice_setting_custom_field"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "default_payment_method": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "footer": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "rendering_options": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StripePinned_invoice_setting_customer_rendering_options"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "required": [
+          "custom_fields",
+          "default_payment_method",
+          "footer",
+          "rendering_options"
+        ],
         "type": "object"
       },
       "invoices_payment_method_options": {

@@ -2268,6 +2268,13 @@ components:
           anyOf:
           - $ref: '#/components/schemas/invoices_resource_from_invoice'
           nullable: true
+        hosted_invoice_url:
+          description: 'The hosted invoice page, where the customer views and pays the invoice: null until
+            the invoice is finalized. Fluveo mints a fresh link on every read, expiring with the emailed
+            pay link (due date plus 7 days, at least 1 and at most 60 days; 30 days without a due date).'
+          maxLength: 5000
+          nullable: true
+          type: string
         id:
           maxLength: 5000
           type: string
@@ -2838,6 +2845,13 @@ components:
           anyOf:
           - $ref: '#/components/schemas/invoices_resource_from_invoice'
           nullable: true
+        hosted_invoice_url:
+          description: 'The hosted invoice page, where the customer views and pays the invoice: null until
+            the invoice is finalized. Fluveo mints a fresh link on every read, expiring with the emailed
+            pay link (due date plus 7 days, at least 1 and at most 60 days; 30 days without a due date).'
+          maxLength: 5000
+          nullable: true
+          type: string
         id:
           maxLength: 5000
           type: string

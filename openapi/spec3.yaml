@@ -36564,12 +36564,13 @@ paths:
       - $ref: '#/components/parameters/limit'
       - $ref: '#/components/parameters/starting_after'
       - $ref: '#/components/parameters/ending_before'
-      - description: Return customers whose email exactly matches this value.
+      - $ref: '#/components/parameters/created'
+      - description: Return customers whose email exactly matches this value. An empty value matches no
+          Customer.
         in: query
         name: email
         required: false
         schema:
-          minLength: 1
           type: string
       responses:
         '200':

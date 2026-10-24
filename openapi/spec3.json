@@ -974,6 +974,42 @@
         ],
         "type": "object"
       },
+      "ChargeSearchResult": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Charge"
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "next_page": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "object": {
+            "enum": [
+              "search_result"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "maxLength": 5000,
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "has_more",
+          "next_page",
+          "object",
+          "url"
+        ],
+        "type": "object"
+      },
       "CheckoutBrandingAsset": {
         "additionalProperties": false,
         "properties": {
@@ -2384,6 +2420,42 @@
         "required": [
           "data",
           "has_more",
+          "object",
+          "url"
+        ],
+        "type": "object"
+      },
+      "CustomerSearchResult": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Customer"
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "next_page": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "object": {
+            "enum": [
+              "search_result"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "maxLength": 5000,
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "has_more",
+          "next_page",
           "object",
           "url"
         ],
@@ -4762,6 +4834,42 @@
           }
         },
         "required": [
+          "url"
+        ],
+        "type": "object"
+      },
+      "PaymentIntentSearchResult": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/PaymentIntent"
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "next_page": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "object": {
+            "enum": [
+              "search_result"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "maxLength": 5000,
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "has_more",
+          "next_page",
+          "object",
           "url"
         ],
         "type": "object"
@@ -49415,6 +49523,66 @@
         }
       }
     },
+    "/v1/charges/search": {
+      "get": {
+        "operationId": "searchCharges",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "description": "The next_page value of the previous search result.",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Stripe's search query language over amount, created, customer, metadata and status.",
+            "in": "query",
+            "name": "query",
+            "required": true,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChargeSearchResult"
+                }
+              }
+            },
+            "description": "Stripe-compatible response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Stripe-compatible error response"
+          }
+        },
+        "x-fluveo-compatibility": {
+          "audience": "merchant_public",
+          "auth_policy": "stripe_secret_key",
+          "idempotency_policy": "not_applicable",
+          "lifecycle": "served",
+          "mode_policy": "test_only",
+          "stripe_reference": "https://docs.stripe.com/api/charges/search"
+        }
+      }
+    },
     "/v1/charges/{charge}": {
       "get": {
         "operationId": "retrieveCharge",
@@ -49908,6 +50076,66 @@
           "lifecycle": "served",
           "mode_policy": "test_only",
           "stripe_reference": "https://docs.stripe.com/api/customers"
+        }
+      }
+    },
+    "/v1/customers/search": {
+      "get": {
+        "operationId": "searchCustomers",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "description": "The next_page value of the previous search result.",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Stripe's search query language over email, name, phone, metadata and created.",
+            "in": "query",
+            "name": "query",
+            "required": true,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerSearchResult"
+                }
+              }
+            },
+            "description": "Stripe-compatible response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Stripe-compatible error response"
+          }
+        },
+        "x-fluveo-compatibility": {
+          "audience": "merchant_public",
+          "auth_policy": "stripe_secret_key",
+          "idempotency_policy": "not_applicable",
+          "lifecycle": "served",
+          "mode_policy": "test_only",
+          "stripe_reference": "https://docs.stripe.com/api/customers/search"
         }
       }
     },
@@ -50621,6 +50849,66 @@
           "lifecycle": "served",
           "mode_policy": "test_only",
           "stripe_reference": "https://docs.stripe.com/api/payment_intents"
+        }
+      }
+    },
+    "/v1/payment_intents/search": {
+      "get": {
+        "operationId": "searchPaymentIntents",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "description": "The next_page value of the previous search result.",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Stripe's search query language over amount, created, customer, metadata and status.",
+            "in": "query",
+            "name": "query",
+            "required": true,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentIntentSearchResult"
+                }
+              }
+            },
+            "description": "Stripe-compatible response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Stripe-compatible error response"
+          }
+        },
+        "x-fluveo-compatibility": {
+          "audience": "merchant_public",
+          "auth_policy": "stripe_secret_key",
+          "idempotency_policy": "not_applicable",
+          "lifecycle": "served",
+          "mode_policy": "test_only",
+          "stripe_reference": "https://docs.stripe.com/api/payment_intents/search"
         }
       }
     },

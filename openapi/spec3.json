@@ -4647,21 +4647,7 @@
             "type": "integer"
           },
           "metadata": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "type": "string"
-                },
-                "type": "object"
-              },
-              {
-                "enum": [
-                  ""
-                ],
-                "type": "string"
-              }
-            ],
-            "description": "Set of [key-value pairs](https://docs.stripe.com/api/metadata) that you can attach to an object. This can be useful for storing additional information about the object in a structured format. Individual keys can be unset by posting an empty value to them. All keys can be unset by posting an empty value to `metadata`. Merged into the PaymentIntent's metadata when the capture succeeds; the merged result follows the public metadata limits (50 keys, keys up to 40 characters, values up to 500 characters), and `fluveo_` keys are refused."
+            "$ref": "#/components/schemas/Metadata"
           },
           "statement_descriptor_suffix": {
             "description": "Refused on capture with a 400 naming this parameter: no Fluveo capture connector sends a descriptor, so it would be dropped. Set it when you create or update the PaymentIntent.",
@@ -51192,12 +51178,6 @@
         "requestBody": {
           "content": {
             "application/x-www-form-urlencoded": {
-              "encoding": {
-                "metadata": {
-                  "explode": true,
-                  "style": "deepObject"
-                }
-              },
               "schema": {
                 "$ref": "#/components/schemas/PaymentIntentCapture"
               }

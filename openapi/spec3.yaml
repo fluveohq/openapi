@@ -4420,9 +4420,11 @@ components:
         custom:
           $ref: '#/components/schemas/payment_method_custom'
         customer:
-          maxLength: 5000
+          anyOf:
+          - $ref: '#/components/schemas/Customer'
+          - maxLength: 5000
+            type: string
           nullable: true
-          type: string
         customer_account:
           maxLength: 5000
           nullable: true
@@ -34279,6 +34281,19 @@ components:
       - taxable_amount
       type: object
     networks:
+      properties:
+        available:
+          items:
+            maxLength: 5000
+            type: string
+          type: array
+        preferred:
+          maxLength: 5000
+          nullable: true
+          type: string
+      required:
+      - available
+      - preferred
       type: object
     payment_flows_amount_details:
       type: object
@@ -34490,12 +34505,57 @@ components:
       - wallet
       type: object
     payment_method_card_checks:
+      properties:
+        address_line1_check:
+          maxLength: 5000
+          nullable: true
+          type: string
+        address_postal_code_check:
+          maxLength: 5000
+          nullable: true
+          type: string
+        cvc_check:
+          maxLength: 5000
+          nullable: true
+          type: string
+      required:
+      - address_line1_check
+      - address_postal_code_check
+      - cvc_check
       type: object
     payment_method_card_generated_card:
       type: object
     payment_method_card_present:
       type: object
     payment_method_card_wallet:
+      properties:
+        amex_express_checkout:
+          $ref: '#/components/schemas/StripePinned_payment_method_card_wallet_amex_express_checkout'
+        apple_pay:
+          $ref: '#/components/schemas/StripePinned_payment_method_card_wallet_apple_pay'
+        dynamic_last4:
+          maxLength: 5000
+          nullable: true
+          type: string
+        google_pay:
+          $ref: '#/components/schemas/StripePinned_payment_method_card_wallet_google_pay'
+        link:
+          $ref: '#/components/schemas/StripePinned_payment_method_card_wallet_link'
+        samsung_pay:
+          $ref: '#/components/schemas/StripePinned_payment_method_card_wallet_samsung_pay'
+        type:
+          enum:
+          - amex_express_checkout
+          - apple_pay
+          - google_pay
+          - link
+          - masterpass
+          - samsung_pay
+          - visa_checkout
+          type: string
+      required:
+      - dynamic_last4
+      - type
       type: object
     payment_method_cashapp:
       type: object
@@ -36101,6 +36161,11 @@ components:
       - version
       type: object
     three_d_secure_usage:
+      properties:
+        supported:
+          type: boolean
+      required:
+      - supported
       type: object
     topup:
       type: object

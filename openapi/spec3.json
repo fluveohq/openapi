@@ -4601,7 +4601,11 @@
           "amount_to_capture": {
             "type": "integer"
           },
+          "metadata": {
+            "$ref": "#/components/schemas/Metadata"
+          },
           "statement_descriptor_suffix": {
+            "description": "Refused on capture with a 400 naming this parameter: no Fluveo capture connector sends a descriptor, so it would be dropped. Set it when you create or update the PaymentIntent.",
             "type": "string"
           }
         },

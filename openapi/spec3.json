@@ -1735,9 +1735,13 @@
             "type": "integer"
           },
           "line_items": {
-            "description": "Single currency; every item individually positive; at most 100 items; quantity at most 999999; session total at most 99999999 minor units (checked arithmetic).",
+            "description": "Single currency; every item individually positive; at most 100 items; quantity at most 999999; session total at most 99999999 minor units (checked arithmetic). An item names either a stored catalog price (one-time, per-unit, active) or inline price_data, never both.",
             "items": {
               "properties": {
+                "price": {
+                  "maxLength": 5000,
+                  "type": "string"
+                },
                 "price_data": {
                   "properties": {
                     "currency": {
@@ -51430,7 +51434,7 @@
         }
       },
       "post": {
-        "description": "Create a reusable merchant-owned payment link from line_items. The body is application/x-www-form-urlencoded (ADR 0004). Idempotency-Key replay returns the original link; reuse with different parameters is a 409 idempotency_error.",
+        "description": "Create a reusable merchant-owned payment link from line_items. The body is application/x-www-form-urlencoded (ADR 0004). Idempotency-Key replay returns the original link; reuse with different parameters is a 400 idempotency_error.",
         "operationId": "createPaymentLink",
         "parameters": [
           {

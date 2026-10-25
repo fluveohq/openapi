@@ -180,6 +180,37 @@ components:
       schema:
         type: string
   schemas:
+    Account:
+      description: The calling store's own Account. Fluveo serves these keys; every other Stripe Account
+        key is absent (docs/api/stripe-divergences.md, Account).
+      properties:
+        business_profile:
+          anyOf:
+          - $ref: '#/components/schemas/StripePinned_account_business_profile'
+          nullable: true
+        charges_enabled:
+          type: boolean
+        country:
+          maxLength: 5000
+          type: string
+        default_currency:
+          maxLength: 5000
+          type: string
+        details_submitted:
+          type: boolean
+        id:
+          maxLength: 5000
+          type: string
+        object:
+          enum:
+          - account
+          type: string
+        payouts_enabled:
+          type: boolean
+      required:
+      - id
+      - object
+      type: object
     Address:
       additionalProperties: false
       properties:
@@ -3409,7 +3440,19 @@ components:
         amount_to_capture:
           type: integer
         metadata:
-          $ref: '#/components/schemas/Metadata'
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - enum:
+            - ''
+            type: string
+          description: Set of [key-value pairs](https://docs.stripe.com/api/metadata) that you can attach
+            to an object. This can be useful for storing additional information about the object in a
+            structured format. Individual keys can be unset by posting an empty value to them. All keys
+            can be unset by posting an empty value to `metadata`. Merged into the PaymentIntent's metadata
+            when the capture succeeds; the merged result follows the public metadata limits (50 keys,
+            keys up to 40 characters, values up to 500 characters), and `fluveo_` keys are refused.
         statement_descriptor_suffix:
           description: 'Refused on capture with a 400 naming this parameter: no Fluveo capture connector
             sends a descriptor, so it would be dropped. Set it when you create or update the PaymentIntent.'
@@ -36121,6 +36164,29 @@ info:
   x-fluveo-stripe-api-version-pin: 2026-05-27.dahlia
 openapi: 3.0.3
 paths:
+  /v1/account:
+    get:
+      operationId: retrieveAccount
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: Stripe-compatible response
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Stripe-compatible error response
+      x-fluveo-compatibility:
+        audience: merchant_public
+        auth_policy: stripe_secret_key
+        idempotency_policy: not_applicable
+        lifecycle: served
+        mode_policy: test_only
+        stripe_reference: https://docs.stripe.com/api/accounts
   /v1/balance:
     get:
       operationId: retrieveBalance
@@ -37264,6 +37330,10 @@ paths:
       requestBody:
         content:
           application/x-www-form-urlencoded:
+            encoding:
+              metadata:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/PaymentIntentCapture'
         required: false

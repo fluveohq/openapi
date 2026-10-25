@@ -50730,7 +50730,7 @@
     },
     "/v1/invoices": {
       "get": {
-        "description": "List invoices in created-desc order, merchant-scoped. Returns up to the service's fixed page size; limit/starting_after/ending_before are not honored on this surface yet.",
+        "description": "List invoices in created-desc order, merchant-scoped. Honors limit, starting_after and ending_before, and Stripe's customer, subscription, status, collection_method, created and due_date filters; an unknown or foreign customer is a 400 and an unknown or foreign subscription a 404, as on Stripe.",
         "operationId": "listInvoices",
         "parameters": [
           {
@@ -50755,6 +50755,109 @@
               "maxLength": 5000,
               "type": "string"
             }
+          },
+          {
+            "in": "query",
+            "name": "customer",
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "subscription",
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "enum": [
+                "draft",
+                "open",
+                "paid",
+                "uncollectible",
+                "void"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "collection_method",
+            "schema": {
+              "enum": [
+                "charge_automatically",
+                "send_invoice"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "explode": true,
+            "in": "query",
+            "name": "created",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "gt": {
+                      "type": "integer"
+                    },
+                    "gte": {
+                      "type": "integer"
+                    },
+                    "lt": {
+                      "type": "integer"
+                    },
+                    "lte": {
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "style": "deepObject"
+          },
+          {
+            "explode": true,
+            "in": "query",
+            "name": "due_date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "gt": {
+                      "type": "integer"
+                    },
+                    "gte": {
+                      "type": "integer"
+                    },
+                    "lt": {
+                      "type": "integer"
+                    },
+                    "lte": {
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "style": "deepObject"
           }
         ],
         "responses": {

@@ -51178,6 +51178,12 @@
         "requestBody": {
           "content": {
             "application/x-www-form-urlencoded": {
+              "encoding": {
+                "metadata": {
+                  "explode": true,
+                  "style": "deepObject"
+                }
+              },
               "schema": {
                 "$ref": "#/components/schemas/PaymentIntentCapture"
               }

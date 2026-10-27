@@ -7246,6 +7246,39 @@
         },
         "type": "object"
       },
+      "SetupAttemptList": {
+        "description": "The SetupAttempts of one SetupIntent, newest first. Older attempts carry no payment_method (docs/api/stripe-divergences.md, SetupAttempt list).",
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/StripePinned_setup_attempt"
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "object": {
+            "description": "Fluveo narrowing annotation: truthful single-value list object constant.",
+            "enum": [
+              "list"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "maxLength": 5000,
+            "pattern": "^/v1/setup_attempts",
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "has_more",
+          "object",
+          "url"
+        ],
+        "type": "object"
+      },
       "SetupIntent": {
         "additionalProperties": false,
         "properties": {
@@ -52734,6 +52767,84 @@
           "lifecycle": "served",
           "mode_policy": "test_only",
           "stripe_reference": "https://docs.stripe.com/api/refunds"
+        }
+      }
+    },
+    "/v1/setup_attempts": {
+      "get": {
+        "operationId": "listSetupAttempts",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "setup_intent",
+            "required": true,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "in": "query",
+            "name": "starting_after",
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "ending_before",
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/created"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupAttemptList"
+                }
+              }
+            },
+            "description": "Stripe-compatible SetupAttempt list response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Stripe-compatible error response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Stripe-compatible error response"
+          }
+        },
+        "x-fluveo-compatibility": {
+          "audience": "merchant_public",
+          "auth_policy": "stripe_secret_key",
+          "idempotency_policy": "not_applicable",
+          "lifecycle": "served",
+          "mode_policy": "test_only",
+          "stripe_reference": "https://docs.stripe.com/api/setup_attempts"
         }
       }
     },

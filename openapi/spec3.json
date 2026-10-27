@@ -3022,8 +3022,19 @@
             "type": "array"
           },
           "customer": {
-            "nullable": true,
-            "type": "string"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Customer"
+              },
+              {
+                "$ref": "#/components/schemas/DeletedCustomer"
+              },
+              {
+                "maxLength": 5000,
+                "type": "string"
+              }
+            ],
+            "nullable": true
           },
           "customer_account": {
             "maxLength": 5000,

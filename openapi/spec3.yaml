@@ -2230,8 +2230,12 @@ components:
           nullable: true
           type: array
         customer:
+          anyOf:
+          - $ref: '#/components/schemas/Customer'
+          - $ref: '#/components/schemas/DeletedCustomer'
+          - maxLength: 5000
+            type: string
           nullable: true
-          type: string
         customer_account:
           maxLength: 5000
           nullable: true

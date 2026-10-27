@@ -37262,6 +37262,36 @@ paths:
         lifecycle: served
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/invoices
+  /v1/invoices/{invoice}/void:
+    post:
+      description: 'Void an open or uncollectible invoice (FLU-478), as Stripe does: a draft, paid or
+        already-void invoice is refused with Stripe''s 400, and an invoice with a payment in progress
+        or waiting to commit is refused. Test mode only. Body is application/x-www-form-urlencoded and
+        takes only `expand`. Returns the invoice.'
+      operationId: voidInvoice
+      parameters:
+      - $ref: '#/components/parameters/invoicePath'
+      - $ref: '#/components/parameters/idempotencyKey'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+          description: Stripe-compatible response
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Stripe-compatible error response
+      x-fluveo-compatibility:
+        audience: merchant_public
+        auth_policy: stripe_secret_key
+        idempotency_policy: required_on_retryable_write
+        lifecycle: served
+        mode_policy: test_only
+        stripe_reference: https://docs.stripe.com/api/invoices
   /v1/payment_intents:
     get:
       operationId: listPaymentIntents

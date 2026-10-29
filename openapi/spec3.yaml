@@ -5386,6 +5386,11 @@ components:
           maxLength: 5000
           nullable: true
           type: string
+        customer_account:
+          description: 'Fluveo narrowing annotation: always null; this surface holds no customer accounts.'
+          maxLength: 5000
+          nullable: true
+          type: string
         description:
           maxLength: 5000
           nullable: true
@@ -5449,6 +5454,16 @@ components:
             type: string
           nullable: true
           type: array
+        flow_directions:
+          description: 'Fluveo narrowing annotation: always null; this surface sets up cards without this
+            Stripe feature.'
+          items:
+            enum:
+            - inbound
+            - outbound
+            type: string
+          nullable: true
+          type: array
         id:
           maxLength: 5000
           type: string
@@ -5462,6 +5477,11 @@ components:
           type: string
         livemode:
           type: boolean
+        managed_payments:
+          anyOf:
+          - $ref: '#/components/schemas/StripePinned_smor_resource_managed_payments'
+          description: 'Always {"enabled": false}; this surface does not offer managed payments.'
+          nullable: true
         mandate:
           maxLength: 5000
           nullable: true
@@ -5560,6 +5580,9 @@ components:
           $ref: '#/components/schemas/SetupIntentPaymentMethodData'
         return_url:
           type: string
+        use_stripe_sdk:
+          description: Accepted for Stripe SDK compatibility; next_action is always redirect_to_url.
+          type: boolean
       type: object
     SetupIntentCreate:
       additionalProperties: false
@@ -5578,8 +5601,25 @@ components:
           type: string
         payment_method_data:
           $ref: '#/components/schemas/SetupIntentPaymentMethodData'
+        payment_method_types:
+          description: Only card is supported; any other entry returns a named 400 on payment_method_types.
+            The SetupIntent serves ["card"] either way.
+          items:
+            maxLength: 5000
+            type: string
+          type: array
         return_url:
           type: string
+        usage:
+          description: Stripe's spelling of how the saved card will be used. Only off_session (the default)
+            is supported; on_session returns a named 400 on usage.
+          enum:
+          - off_session
+          - on_session
+          type: string
+        use_stripe_sdk:
+          description: Accepted for Stripe SDK compatibility; next_action is always redirect_to_url.
+          type: boolean
       type: object
     SetupIntentLastSetupError:
       additionalProperties: false
@@ -6015,6 +6055,13 @@ components:
           $ref: '#/components/schemas/Metadata'
         payment_method_data:
           $ref: '#/components/schemas/SetupIntentPaymentMethodData'
+        payment_method_types:
+          description: Only card is supported; any other entry returns a named 400 on payment_method_types.
+            The SetupIntent serves ["card"] either way.
+          items:
+            maxLength: 5000
+            type: string
+          type: array
       type: object
     Shipping:
       additionalProperties: false
@@ -38487,6 +38534,9 @@ paths:
               payment_method_data:
                 explode: true
                 style: deepObject
+              payment_method_types:
+                explode: true
+                style: deepObject
             schema:
               $ref: '#/components/schemas/SetupIntentCreate'
         required: false
@@ -38549,6 +38599,9 @@ paths:
                 explode: true
                 style: deepObject
               payment_method_data:
+                explode: true
+                style: deepObject
+              payment_method_types:
                 explode: true
                 style: deepObject
             schema:

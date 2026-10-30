@@ -1735,7 +1735,7 @@
             "type": "integer"
           },
           "line_items": {
-            "description": "Single currency; every item individually positive; at most 100 items; quantity at most 999999; session total at most 99999999 minor units (checked arithmetic). An item names either a stored catalog price (one-time, per-unit, active) or inline price_data, never both.",
+            "description": "Single currency; every item individually positive; at most 100 items; session total at most 99999999 minor units and, in usd, at least 50 (checked arithmetic). An item names either a stored catalog price (one-time, per-unit, active) or inline price_data, never both.",
             "items": {
               "properties": {
                 "price": {

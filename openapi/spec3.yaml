@@ -2515,8 +2515,10 @@ components:
       type: object
     InvoiceCreate:
       additionalProperties: false
-      description: Create a draft invoice sweeping the customer's pending invoice items. The dashboard
-        flow sends collection_method=send_invoice (hosted page, never a silent auto-charge). Sent as application/x-www-form-urlencoded.
+      description: Create a draft invoice. pending_invoice_items_behavior=include adds the customer's
+        pending invoice items; omitted or exclude leaves them pending, as in Stripe. The dashboard flow
+        sends pending_invoice_items_behavior=include and collection_method=send_invoice (hosted page,
+        never a silent auto-charge). Sent as application/x-www-form-urlencoded.
       properties:
         collection_method:
           enum:
@@ -2524,10 +2526,11 @@ components:
           - send_invoice
           type: string
         currency:
-          description: Three-letter ISO code, lowercase. Omitted, it defaults to the pending items' currency,
-            else the account's currency (usd when unknown). An empty value is refused with a 400, param=currency.
-            Must match every pending invoice item; otherwise a 400 invalid_request_error with no param
-            (Stripe instead creates the invoice and leaves the item pending; see divergences).
+          description: Three-letter ISO code, lowercase. Omitted, it defaults to the included pending
+            items' currency, else the account's currency (usd when unknown). An empty value is refused
+            with a 400, param=currency. With pending_invoice_items_behavior=include it must match every
+            pending invoice item; otherwise a 400 invalid_request_error with no param (Stripe instead
+            creates the invoice and leaves the item pending; see divergences).
           format: currency
           type: string
         customer:
@@ -2548,6 +2551,14 @@ components:
           type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
+        pending_invoice_items_behavior:
+          description: include adds the customer's pending invoice items to the draft; exclude, the default
+            when omitted (as in Stripe), leaves them pending. Any other value is a 400 invalid_request_error
+            with param=pending_invoice_items_behavior.
+          enum:
+          - exclude
+          - include
+          type: string
       required:
       - customer
       type: object
@@ -37222,7 +37233,8 @@ paths:
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/invoices
     post:
-      description: Create a draft invoice sweeping the customer's pending invoice items. Body is application/x-www-form-urlencoded;
+      description: Create a draft invoice. pending_invoice_items_behavior=include adds the customer's
+        pending invoice items; omitted or exclude leaves them pending, as in Stripe. Body is application/x-www-form-urlencoded;
         honors the Idempotency-Key header.
       operationId: createInvoice
       parameters:

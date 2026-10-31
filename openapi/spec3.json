@@ -51239,6 +51239,7 @@
         }
       },
       "post": {
+        "description": "Test mode on a Brazilian (BRL) account: the dispute test PaymentMethods in payment_method (pm_card_createDispute and the rest of Stripe's dispute table) are refused with HTTP 400 invalid_request_error, code payment_method_not_available, param payment_method, before any payment is made, with or without confirm. See the Testing guide.",
         "operationId": "createPaymentIntent",
         "parameters": [
           {
@@ -51580,6 +51581,7 @@
     },
     "/v1/payment_intents/{intent}/confirm": {
       "post": {
+        "description": "Test mode on a Brazilian (BRL) account: the dispute test PaymentMethods in payment_method (pm_card_createDispute and the rest of Stripe's dispute table) are refused with HTTP 400 invalid_request_error, code payment_method_not_available, param payment_method, before any payment is made. See the Testing guide.",
         "operationId": "confirmPaymentIntent",
         "parameters": [
           {
@@ -53254,6 +53256,7 @@
     },
     "/v1/setup_intents/{setup_intent}/confirm": {
       "post": {
+        "description": "Test mode on a Brazilian (BRL) account: the dispute test PaymentMethods in payment_method (pm_card_createDispute and the rest of Stripe's dispute table) are refused with HTTP 400 invalid_request_error, code payment_method_not_available, param payment_method, before the card is set up. See the Testing guide.",
         "operationId": "confirmSetupIntent",
         "parameters": [
           {

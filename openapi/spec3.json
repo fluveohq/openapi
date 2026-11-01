@@ -3761,6 +3761,42 @@
         },
         "type": "object"
       },
+      "InvoiceSearchResult": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Invoice"
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "next_page": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "object": {
+            "enum": [
+              "search_result"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "maxLength": 5000,
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "has_more",
+          "next_page",
+          "object",
+          "url"
+        ],
+        "type": "object"
+      },
       "InvoiceSummary": {
         "additionalProperties": true,
         "description": "Invoice returned by finalize (the billing service's invoice object, the same body as create and retrieve).",
@@ -6823,6 +6859,42 @@
         ],
         "type": "object"
       },
+      "PriceSearchResult": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Price"
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "next_page": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "object": {
+            "enum": [
+              "search_result"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "maxLength": 5000,
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "has_more",
+          "next_page",
+          "object",
+          "url"
+        ],
+        "type": "object"
+      },
       "PriceUpdate": {
         "additionalProperties": false,
         "description": "Update a price. Amount, currency and product are immutable, as they are in Stripe. Sent as application/x-www-form-urlencoded.",
@@ -7038,6 +7110,42 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "ProductSearchResult": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Product"
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "next_page": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "object": {
+            "enum": [
+              "search_result"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "maxLength": 5000,
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "has_more",
+          "next_page",
+          "object",
+          "url"
+        ],
         "type": "object"
       },
       "ProductUpdate": {
@@ -44048,6 +44156,42 @@
         ],
         "type": "object"
       },
+      "SubscriptionSearchResult": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Subscription"
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "next_page": {
+            "maxLength": 5000,
+            "nullable": true,
+            "type": "string"
+          },
+          "object": {
+            "enum": [
+              "search_result"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "maxLength": 5000,
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "has_more",
+          "next_page",
+          "object",
+          "url"
+        ],
+        "type": "object"
+      },
       "TaxCode": {
         "additionalProperties": true,
         "properties": {
@@ -51645,7 +51789,7 @@
             }
           },
           {
-            "description": "Stripe's search query language over amount, created, customer, metadata and status.",
+            "description": "Stripe's search query language over amount, created, currency, customer, disputed, metadata, payment_method_details.card.brand, payment_method_details.card.exp_month, payment_method_details.card.exp_year, payment_method_details.card.last4, refunded and status.",
             "in": "query",
             "name": "query",
             "required": true,
@@ -52858,6 +53002,66 @@
         }
       }
     },
+    "/v1/invoices/search": {
+      "get": {
+        "operationId": "searchInvoices",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "description": "The next_page value of the previous search result.",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Stripe's search query language over created, currency, customer, last_finalization_error_code, last_finalization_error_type, metadata, number, receipt_number, status, subscription and total.",
+            "in": "query",
+            "name": "query",
+            "required": true,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceSearchResult"
+                }
+              }
+            },
+            "description": "Stripe-compatible response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Stripe-compatible error response"
+          }
+        },
+        "x-fluveo-compatibility": {
+          "audience": "merchant_public",
+          "auth_policy": "stripe_secret_key",
+          "idempotency_policy": "not_applicable",
+          "lifecycle": "served",
+          "mode_policy": "test_only",
+          "stripe_reference": "https://docs.stripe.com/api/invoices/search"
+        }
+      }
+    },
     "/v1/invoices/{invoice}": {
       "get": {
         "description": "Retrieve one invoice by id, merchant-scoped. Includes line descriptions and the collection method.",
@@ -53128,7 +53332,7 @@
             }
           },
           {
-            "description": "Stripe's search query language over amount, created, customer, metadata and status.",
+            "description": "Stripe's search query language over amount, created, currency, customer, metadata and status.",
             "in": "query",
             "name": "query",
             "required": true,
@@ -54094,6 +54298,66 @@
         }
       }
     },
+    "/v1/prices/search": {
+      "get": {
+        "operationId": "searchPrices",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "description": "The next_page value of the previous search result.",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Stripe's search query language over active, currency, lookup_key, metadata, product and type.",
+            "in": "query",
+            "name": "query",
+            "required": true,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriceSearchResult"
+                }
+              }
+            },
+            "description": "Stripe-compatible response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Stripe-compatible error response"
+          }
+        },
+        "x-fluveo-compatibility": {
+          "audience": "merchant_public",
+          "auth_policy": "stripe_secret_key",
+          "idempotency_policy": "not_applicable",
+          "lifecycle": "served",
+          "mode_policy": "test_only",
+          "stripe_reference": "https://docs.stripe.com/api/prices/search"
+        }
+      }
+    },
     "/v1/prices/{price}": {
       "get": {
         "description": "Retrieve one price by id, merchant-scoped.",
@@ -54298,6 +54562,66 @@
           "lifecycle": "served",
           "mode_policy": "test_only",
           "stripe_reference": "https://docs.stripe.com/api/products"
+        }
+      }
+    },
+    "/v1/products/search": {
+      "get": {
+        "operationId": "searchProducts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "description": "The next_page value of the previous search result.",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Stripe's search query language over active, description, metadata, name, shippable and url.",
+            "in": "query",
+            "name": "query",
+            "required": true,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductSearchResult"
+                }
+              }
+            },
+            "description": "Stripe-compatible response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Stripe-compatible error response"
+          }
+        },
+        "x-fluveo-compatibility": {
+          "audience": "merchant_public",
+          "auth_policy": "stripe_secret_key",
+          "idempotency_policy": "not_applicable",
+          "lifecycle": "served",
+          "mode_policy": "test_only",
+          "stripe_reference": "https://docs.stripe.com/api/products/search"
         }
       }
     },
@@ -55239,6 +55563,66 @@
           "lifecycle": "served",
           "mode_policy": "test_only",
           "stripe_reference": "https://docs.stripe.com/api/subscriptions"
+        }
+      }
+    },
+    "/v1/subscriptions/search": {
+      "get": {
+        "operationId": "searchSubscriptions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "description": "The next_page value of the previous search result.",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Stripe's search query language over canceled_at, created, metadata and status.",
+            "in": "query",
+            "name": "query",
+            "required": true,
+            "schema": {
+              "maxLength": 5000,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionSearchResult"
+                }
+              }
+            },
+            "description": "Stripe-compatible response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Stripe-compatible error response"
+          }
+        },
+        "x-fluveo-compatibility": {
+          "audience": "merchant_public",
+          "auth_policy": "stripe_secret_key",
+          "idempotency_policy": "not_applicable",
+          "lifecycle": "served",
+          "mode_policy": "test_only",
+          "stripe_reference": "https://docs.stripe.com/api/subscriptions/search"
         }
       }
     },

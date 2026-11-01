@@ -1828,9 +1828,10 @@
             "$ref": "#/components/schemas/Metadata"
           },
           "mode": {
-            "description": "Defaults to payment when omitted. subscription/setup fail loudly at launch.",
+            "description": "Defaults to payment when omitted. subscription takes a customer and recurring catalog prices of one billing interval.",
             "enum": [
-              "payment"
+              "payment",
+              "subscription"
             ],
             "type": "string"
           },
@@ -1869,6 +1870,19 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "subscription_data": {
+            "additionalProperties": false,
+            "description": "Only with mode=subscription. Passed to the subscription the session creates.",
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "metadata": {
+                "$ref": "#/components/schemas/Metadata"
+              }
+            },
+            "type": "object"
           },
           "success_url": {
             "type": "string"

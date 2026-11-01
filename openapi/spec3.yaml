@@ -188,6 +188,16 @@ components:
           anyOf:
           - $ref: '#/components/schemas/StripePinned_account_business_profile'
           nullable: true
+        business_type:
+          enum:
+          - company
+          - government_entity
+          - individual
+          - non_profit
+          nullable: true
+          type: string
+        capabilities:
+          $ref: '#/components/schemas/StripePinned_account_capabilities'
         charges_enabled:
           type: boolean
         country:
@@ -198,15 +208,39 @@ components:
           type: string
         details_submitted:
           type: boolean
+        email:
+          maxLength: 5000
+          nullable: true
+          type: string
+        future_requirements:
+          $ref: '#/components/schemas/StripePinned_account_future_requirements'
         id:
           maxLength: 5000
           type: string
+        metadata:
+          additionalProperties:
+            maxLength: 500
+            type: string
+          type: object
         object:
           enum:
           - account
           type: string
         payouts_enabled:
           type: boolean
+        requirements:
+          $ref: '#/components/schemas/StripePinned_account_requirements'
+        settings:
+          anyOf:
+          - $ref: '#/components/schemas/StripePinned_account_settings'
+          nullable: true
+        type:
+          enum:
+          - custom
+          - express
+          - none
+          - standard
+          type: string
       required:
       - id
       - object

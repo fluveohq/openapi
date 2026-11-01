@@ -4881,6 +4881,77 @@ components:
       - object
       - url
       type: object
+    PaymentMethodUpdate:
+      additionalProperties: false
+      properties:
+        allow_redisplay:
+          enum:
+          - always
+          - limited
+          - unspecified
+          type: string
+        billing_details:
+          description: 'Billing texts are counted in bytes of UTF-8 and refuse control characters: name,
+            email and phone at most 254 bytes, each address member at most 200 bytes, country empty or
+            two uppercase letters. An empty string clears that one field; the address is an object and
+            cannot be cleared as a whole. Any other input is a 400 on billing_details.'
+          properties:
+            address:
+              properties:
+                city:
+                  maxLength: 200
+                  type: string
+                country:
+                  maxLength: 2
+                  pattern: ^([A-Z]{2})?$
+                  type: string
+                line1:
+                  maxLength: 200
+                  type: string
+                line2:
+                  maxLength: 200
+                  type: string
+                postal_code:
+                  maxLength: 200
+                  type: string
+                state:
+                  maxLength: 200
+                  type: string
+              type: object
+            email:
+              anyOf:
+              - maxLength: 254
+                type: string
+              - enum:
+                - ''
+                type: string
+            name:
+              anyOf:
+              - maxLength: 254
+                type: string
+              - enum:
+                - ''
+                type: string
+            phone:
+              anyOf:
+              - maxLength: 254
+                type: string
+              - enum:
+                - ''
+                type: string
+          type: object
+        expand:
+          items:
+            maxLength: 5000
+            type: string
+          type: array
+        metadata:
+          anyOf:
+          - $ref: '#/components/schemas/Metadata'
+          - enum:
+            - ''
+            type: string
+      type: object
     Price:
       additionalProperties: true
       properties:
@@ -39406,6 +39477,56 @@ paths:
         lifecycle: served
         mode_policy: test_only
         stripe_reference: https://docs.stripe.com/api/payment_methods
+    post:
+      description: Updates billing_details, metadata and allow_redisplay of a saved card of the authenticated
+        merchant and mode, test mode only. An empty string clears an individual billing text field or
+        a metadata key; metadata= clears every key. The address itself must be an object. expand[] takes
+        customer. Updates that change stored fields support durable 24-hour idempotent replay of the unexpanded
+        receipt. Customer expansion is resolved again on replay.
+      operationId: updatePaymentMethod
+      parameters:
+      - in: path
+        name: payment_method_id
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/idempotencyKey'
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            encoding:
+              billing_details:
+                explode: true
+                style: deepObject
+              expand:
+                explode: true
+                style: deepObject
+              metadata:
+                explode: true
+                style: deepObject
+            schema:
+              $ref: '#/components/schemas/PaymentMethodUpdate'
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethod'
+          description: Stripe-compatible response
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Stripe-compatible error response
+      x-fluveo-compatibility:
+        audience: merchant_public
+        auth_policy: stripe_secret_key
+        idempotency_policy: required_on_retryable_write
+        lifecycle: served
+        mode_policy: test_only
+        stripe_reference: https://docs.stripe.com/api/payment_methods/update
   /v1/payment_methods/{payment_method_id}/attach:
     post:
       description: 'US stores only. Confirms a saved card of the authenticated merchant and mode is attached

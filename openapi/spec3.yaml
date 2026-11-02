@@ -32255,8 +32255,8 @@ components:
     SubscriptionCreate:
       additionalProperties: false
       description: Create a subscription. items is form-encoded as items[0][price], items[0][quantity].
-        payment_behavior defaults to default_incomplete so the first payment runs through the hosted page.
-        Sent as application/x-www-form-urlencoded.
+        payment_behavior defaults to allow_incomplete, which charges the first invoice at create; default_incomplete
+        leaves it for the hosted page. Sent as application/x-www-form-urlencoded.
       properties:
         cancel_at:
           description: Unix timestamp (seconds), strictly after the effective start; recorded as the contracted
@@ -40476,7 +40476,7 @@ paths:
         stripe_reference: https://docs.stripe.com/api/subscriptions
     post:
       description: Create a subscription. Body is application/x-www-form-urlencoded; honors the Idempotency-Key
-        header. payment_behavior defaults to default_incomplete.
+        header. payment_behavior defaults to allow_incomplete.
       operationId: createSubscription
       parameters:
       - $ref: '#/components/parameters/idempotencyKey'

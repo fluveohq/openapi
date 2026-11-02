@@ -35407,6 +35407,48 @@ components:
               format: unix-time
               nullable: true
               type: integer
+            payer:
+              description: Who paid the Pix (Pagar.me's payer); null until the Pix is paid. Itaú's paid
+                answer carries no payer identity, so name, document_type, document and bank_account.bank_name
+                are null; bank_account.ispb is the payer bank's ISPB, read from the end-to-end id.
+              nullable: true
+              properties:
+                bank_account:
+                  properties:
+                    bank_name:
+                      maxLength: 5000
+                      nullable: true
+                      type: string
+                    ispb:
+                      description: 'The payer bank''s ISPB: characters 2 to 9 of the end-to-end id; null
+                        when they are not 8 digits.'
+                      nullable: true
+                      pattern: ^[0-9]{8}$
+                      type: string
+                  required:
+                  - bank_name
+                  - ispb
+                  type: object
+                document:
+                  maxLength: 5000
+                  nullable: true
+                  type: string
+                document_type:
+                  enum:
+                  - cpf
+                  - cnpj
+                  nullable: true
+                  type: string
+                name:
+                  maxLength: 5000
+                  nullable: true
+                  type: string
+              required:
+              - name
+              - document_type
+              - document
+              - bank_account
+              type: object
           type: object
         type:
           maxLength: 5000

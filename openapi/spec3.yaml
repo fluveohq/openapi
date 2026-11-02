@@ -34909,6 +34909,27 @@ components:
       - type
       type: object
     payment_intent_payment_method_options:
+      properties:
+        pix:
+          properties:
+            additional_information:
+              description: The lines sent to the bank as infoAdicionais on confirm (Pagar.me's pix.additional_information);
+                null when none were sent.
+              items:
+                properties:
+                  name:
+                    maxLength: 50
+                    type: string
+                  value:
+                    maxLength: 200
+                    type: string
+                required:
+                - name
+                - value
+                type: object
+              nullable: true
+              type: array
+          type: object
       type: object
     payment_intent_processing:
       properties:
@@ -35373,7 +35394,19 @@ components:
           - wallet
           type: object
         pix:
-          properties: {}
+          properties:
+            bank_transaction_id:
+              description: The Pix end-to-end id (endToEndId) of the paid payment; null until the Pix
+                is paid.
+              maxLength: 5000
+              nullable: true
+              type: string
+            paid_at:
+              description: When the Pix was paid, as the bank reports it (Unix seconds); null until the
+                Pix is paid.
+              format: unix-time
+              nullable: true
+              type: integer
           type: object
         type:
           maxLength: 5000

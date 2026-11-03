@@ -4705,6 +4705,11 @@ components:
         customer:
           description: The customer the card already belongs to.
           type: string
+        customer_account:
+          description: Fluveo has no Account configured as a Customer, so every value is answered as Stripe
+            answers an unknown one.
+          maxLength: 5000
+          type: string
       type: object
     PaymentMethodBillingAddress:
       additionalProperties: false
@@ -4838,9 +4843,61 @@ components:
     PaymentMethodCreate:
       additionalProperties: false
       description: 'Test mode, US stores: a card PaymentMethod with no customer from one documented Stripe
-        test token (ADR 0121). Raw card details (`card[number]`, `card[exp_month]`, `card[exp_year]`,
-        `card[cvc]`, `card[networks]`) are refused in either mode.'
+        test token (ADR 0121), with billing_details and metadata as Stripe stores them. billing_details[tax_id]
+        is refused as Stripe refuses it on a card (tax_id_prohibited). Raw card details (`card[number]`,
+        `card[exp_month]`, `card[exp_year]`, `card[cvc]`, `card[networks]`) are refused in either mode.'
       properties:
+        billing_details:
+          properties:
+            address:
+              anyOf:
+              - enum:
+                - ''
+                type: string
+              - properties:
+                  city:
+                    maxLength: 5000
+                    type: string
+                  country:
+                    maxLength: 5000
+                    type: string
+                  line1:
+                    maxLength: 5000
+                    type: string
+                  line2:
+                    maxLength: 5000
+                    type: string
+                  postal_code:
+                    maxLength: 5000
+                    type: string
+                  state:
+                    maxLength: 5000
+                    type: string
+                type: object
+            email:
+              anyOf:
+              - enum:
+                - ''
+                type: string
+              - type: string
+            name:
+              anyOf:
+              - enum:
+                - ''
+                type: string
+              - maxLength: 5000
+                type: string
+            phone:
+              anyOf:
+              - enum:
+                - ''
+                type: string
+              - maxLength: 5000
+                type: string
+            tax_id:
+              maxLength: 5000
+              type: string
+          type: object
         card:
           anyOf:
           - properties:
@@ -4853,6 +4910,8 @@ components:
             type: object
           description: Only the documented test token branch (`token_params`); Stripe's `card_details_params`
             branch is raw card data and is refused.
+        metadata:
+          $ref: '#/components/schemas/Metadata'
         type:
           enum:
           - card

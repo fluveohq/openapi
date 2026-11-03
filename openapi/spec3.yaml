@@ -38293,9 +38293,10 @@ paths:
         stripe_reference: https://docs.stripe.com/api/checkout
   /v1/checkout/sessions/{session}:
     get:
-      description: Retrieve a Checkout Session. A session whose boleto was already issued (payment still
-        in progress) returns 200 with status open and payment_status unpaid, read from Fluveo's local
-        state; an issued boleto is not a payment, so fulfill only when payment_status is paid.
+      description: Retrieve a Checkout Session. A session whose boleto or Pix QR code was already issued
+        (payment still in progress) returns 200 with status complete and payment_status unpaid, as Stripe
+        completes a session once it generates the voucher or code, read from Fluveo's local state; an
+        issued boleto or Pix code is not a payment, so fulfill only when payment_status is paid.
       operationId: retrieveCheckoutSession
       parameters:
       - $ref: '#/components/parameters/sessionPath'
@@ -38361,8 +38362,9 @@ paths:
   /v1/checkout/sessions/{session}/expire:
     post:
       description: Expire an open session (cancels the backing PaymentIntent). Sessions that are already
-        complete or expired return a 400. Idempotency-Key durably binds the merchant, mode, operation,
-        and session id for 24-hour byte-identical replay.
+        complete or expired return a 400, including a session whose boleto or Pix QR code was already
+        issued, which is complete with payment_status unpaid. Idempotency-Key durably binds the merchant,
+        mode, operation, and session id for 24-hour byte-identical replay.
       operationId: expireCheckoutSession
       parameters:
       - $ref: '#/components/parameters/sessionPath'

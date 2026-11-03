@@ -1807,10 +1807,15 @@ components:
           type: string
         email:
           type: string
+        invoice_prefix:
+          maxLength: 5000
+          type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
         name:
           type: string
+        next_invoice_sequence:
+          type: integer
         phone:
           type: string
       type: object
@@ -1872,6 +1877,9 @@ components:
           type: string
         email:
           type: string
+        invoice_prefix:
+          maxLength: 5000
+          type: string
         invoice_settings:
           description: 'Fluveo implements only default_payment_method: a saved card attached to this customer,
             or an empty value to clear it (merchant keys).'
@@ -1884,6 +1892,8 @@ components:
           $ref: '#/components/schemas/Metadata'
         name:
           type: string
+        next_invoice_sequence:
+          type: integer
         phone:
           type: string
       type: object

@@ -38293,6 +38293,9 @@ paths:
         stripe_reference: https://docs.stripe.com/api/checkout
   /v1/checkout/sessions/{session}:
     get:
+      description: Retrieve a Checkout Session. A session whose boleto was already issued (payment still
+        in progress) returns 200 with status open and payment_status unpaid, read from Fluveo's local
+        state; an issued boleto is not a payment, so fulfill only when payment_status is paid.
       operationId: retrieveCheckoutSession
       parameters:
       - $ref: '#/components/parameters/sessionPath'

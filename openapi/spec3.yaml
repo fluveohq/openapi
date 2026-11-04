@@ -3771,6 +3771,12 @@ components:
       properties:
         amount:
           type: integer
+        capture_method:
+          enum:
+          - automatic
+          - automatic_async
+          - manual
+          type: string
         currency:
           format: currency
           type: string
@@ -3780,6 +3786,31 @@ components:
           type: string
         metadata:
           $ref: '#/components/schemas/Metadata'
+        payment_method:
+          description: 'US stores: a saved pm_* of the PaymentIntent''s customer, kept for a later confirm
+            (PI-020). BR stores refuse it.'
+          maxLength: 5000
+          type: string
+        payment_method_data:
+          description: 'Before confirm: `type=pix` or `type=boleto` sets the PaymentIntent''s rail, as
+            `payment_method_types` does. Only `type` is taken on update; inline card data is hidden from
+            public /v1 (ADR 0004, amendment G5/C14).'
+          properties:
+            type:
+              enum:
+              - pix
+              - boleto
+              type: string
+          required:
+          - type
+          type: object
+        payment_method_types:
+          description: 'Before confirm, one entry: `card`, or on a BR store `pix` or `boleto` (automatic
+            capture only).'
+          items:
+            maxLength: 5000
+            type: string
+          type: array
         receipt_email:
           type: string
         setup_future_usage:
@@ -39223,6 +39254,12 @@ paths:
           application/x-www-form-urlencoded:
             encoding:
               metadata:
+                explode: true
+                style: deepObject
+              payment_method_data:
+                explode: true
+                style: deepObject
+              payment_method_types:
                 explode: true
                 style: deepObject
               receipt_email:

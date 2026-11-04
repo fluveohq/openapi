@@ -4855,8 +4855,16 @@ components:
       description: 'Test mode, US stores: a card PaymentMethod with no customer from one documented Stripe
         test token (ADR 0121), with billing_details and metadata as Stripe stores them. billing_details[tax_id]
         is refused as Stripe refuses it on a card (tax_id_prohibited). Raw card details (`card[number]`,
-        `card[exp_month]`, `card[exp_year]`, `card[cvc]`, `card[networks]`) are refused in either mode.'
+        `card[exp_month]`, `card[exp_year]`, `card[cvc]`, `card[networks]`) are refused in either mode.
+        BR stores: a Boleto PaymentMethod (`type=boleto`) with `boleto[tax_id]` and `billing_details`
+        (name, email, address required), as Stripe (BR-BOLETO-PM-OBJECTS).'
       properties:
+        allow_redisplay:
+          enum:
+          - always
+          - limited
+          - unspecified
+          type: string
         billing_details:
           properties:
             address:
@@ -4908,6 +4916,14 @@ components:
               maxLength: 5000
               type: string
           type: object
+        boleto:
+          properties:
+            tax_id:
+              maxLength: 5000
+              type: string
+          required:
+          - tax_id
+          type: object
         card:
           anyOf:
           - properties:
@@ -4924,6 +4940,7 @@ components:
           $ref: '#/components/schemas/Metadata'
         type:
           enum:
+          - boleto
           - card
           type: string
       type: object
@@ -39562,7 +39579,9 @@ paths:
       description: US stores, test mode only. Creates a card PaymentMethod with no customer from a documented
         Stripe test token (`card[token]`), which `attach` can then give a customer. Raw card details are
         refused in either mode with HTTP 402. Idempotency-Key durably binds the merchant, mode, operation
-        and body for 24-hour byte-identical replay, and a keyed create writes one card.
+        and body for 24-hour byte-identical replay, and a keyed create writes one card. BR stores create
+        a Boleto PaymentMethod (`type=boleto`, `boleto[tax_id]`, `billing_details`); its tax id is kept
+        encrypted and shown as sent on retrieve (BR-BOLETO-PM-OBJECTS).
       operationId: createPaymentMethod
       parameters:
       - $ref: '#/components/parameters/idempotencyKey'
@@ -39570,7 +39589,16 @@ paths:
         content:
           application/x-www-form-urlencoded:
             encoding:
+              billing_details:
+                explode: true
+                style: deepObject
+              boleto:
+                explode: true
+                style: deepObject
               card:
+                explode: true
+                style: deepObject
+              metadata:
                 explode: true
                 style: deepObject
             schema:

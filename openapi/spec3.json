@@ -53689,7 +53689,7 @@
         }
       },
       "post": {
-        "description": "Test mode on a Brazilian (BRL) account: the dispute test PaymentMethods in payment_method (pm_card_createDispute and the rest of Stripe's dispute table) are refused with HTTP 400 invalid_request_error, code payment_method_not_available, param payment_method, before any payment is made, with or without confirm. See the Testing guide.",
+        "description": "Test mode on a Brazilian (BRL) account: where Fluveo runs its Cielo chargeback emulator (development environments only), pm_card_createDispute, pm_card_createDisputeProductNotReceived and pm_card_createDisputeInquiry in payment_method pay on a payment routed to Cielo and open a test dispute, and are refused with HTTP 400 invalid_request_error, code payment_method_not_available, param payment_method, before any payment is made, when the payment would be processed by another acquirer. Everywhere else, and always for the other dispute test PaymentMethods of Stripe's dispute table, the dispute test PaymentMethods are refused with that 400 before any payment is made, with or without confirm. See the Testing guide.",
         "operationId": "createPaymentIntent",
         "parameters": [
           {
@@ -54043,7 +54043,7 @@
     },
     "/v1/payment_intents/{intent}/confirm": {
       "post": {
-        "description": "Test mode on a Brazilian (BRL) account: the dispute test PaymentMethods in payment_method (pm_card_createDispute and the rest of Stripe's dispute table) are refused with HTTP 400 invalid_request_error, code payment_method_not_available, param payment_method, before any payment is made. See the Testing guide.",
+        "description": "Test mode on a Brazilian (BRL) account: where Fluveo runs its Cielo chargeback emulator (development environments only), pm_card_createDispute, pm_card_createDisputeProductNotReceived and pm_card_createDisputeInquiry in payment_method, or recorded by an earlier confirm before a retry without payment_method, pay on a payment routed to Cielo and open a test dispute, and are refused with HTTP 400 invalid_request_error, code payment_method_not_available, param payment_method, before any payment is made, when the payment would be processed by another acquirer. Everywhere else, and always for the other dispute test PaymentMethods of Stripe's dispute table, the dispute test PaymentMethods are refused with that 400 before any payment is made. See the Testing guide.",
         "operationId": "confirmPaymentIntent",
         "parameters": [
           {

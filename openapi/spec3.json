@@ -3684,7 +3684,7 @@
             "type": "integer"
           },
           "currency": {
-            "description": "Three-letter ISO code, lowercase, for an amount item. Omitted, it defaults to the account's currency (usd when unknown); a price item takes the price's currency. An empty value is refused with a 400, param=currency.",
+            "description": "Three-letter ISO code, lowercase. Omitted, it defaults to the account's currency (usd when unknown); with price_data it is optional and must equal price_data[currency]. An empty value is refused with a 400, param=currency.",
             "format": "currency",
             "type": "string"
           },
@@ -3701,9 +3701,58 @@
           "metadata": {
             "$ref": "#/components/schemas/Metadata"
           },
+          "period": {
+            "description": "Both or neither. The item, its invoice line and the invoice that pulls it in report this period, as Stripe.",
+            "properties": {
+              "end": {
+                "format": "unix-time",
+                "type": "integer"
+              },
+              "start": {
+                "format": "unix-time",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "end",
+              "start"
+            ],
+            "type": "object"
+          },
+          "price_data": {
+            "description": "An inline unit price for this item, as Stripe. Exactly one of unit_amount or unit_amount_decimal. Not accepted with amount or unit_amount_decimal. price_data[product] must name a product of this account and mode (400 resource_missing otherwise). price_data[tax_behavior] is refused as unsupported (stripe-divergences). The item reports pricing null: Fluveo creates no inline price.",
+            "properties": {
+              "currency": {
+                "description": "On public /v1 a three-letter code Fluveo does not support is refused before Billing: 400 param=price_data[currency].",
+                "format": "currency",
+                "type": "string"
+              },
+              "product": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "unit_amount": {
+                "type": "integer"
+              },
+              "unit_amount_decimal": {
+                "format": "decimal",
+                "type": "string"
+              }
+            },
+            "required": [
+              "currency",
+              "product"
+            ],
+            "type": "object"
+          },
           "quantity": {
-            "description": "Not accepted together with amount (400 param=amount, as Stripe). Public /v1 offers no price-based item, so quantity has no accepted use today.",
+            "description": "Units billed at the unit price that price_data or unit_amount_decimal gives; the line total is quantity times that unit price, rounded half up to a minor unit. Not accepted together with amount (400 param=amount, as Stripe).",
             "type": "integer"
+          },
+          "unit_amount_decimal": {
+            "description": "Unit price in minor units with up to 12 decimal places, as Stripe. Not accepted with amount or price_data (400, 'You may only specify one of these parameters: ...').",
+            "format": "decimal",
+            "type": "string"
           }
         },
         "required": [
@@ -53129,6 +53178,14 @@
             "application/x-www-form-urlencoded": {
               "encoding": {
                 "metadata": {
+                  "explode": true,
+                  "style": "deepObject"
+                },
+                "period": {
+                  "explode": true,
+                  "style": "deepObject"
+                },
+                "price_data": {
                   "explode": true,
                   "style": "deepObject"
                 }
